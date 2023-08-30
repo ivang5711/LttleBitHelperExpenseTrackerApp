@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace LittleBitHelperExpenseTracker.Pages
 {
+    [Authorize]
     public class PreferencesModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;

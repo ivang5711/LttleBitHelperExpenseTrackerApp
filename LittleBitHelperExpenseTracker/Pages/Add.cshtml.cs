@@ -1,10 +1,12 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Data.SQLite;
 
 namespace LittleBitHelperExpenseTracker.Pages
 {
+    [Authorize]
     public class AddModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
