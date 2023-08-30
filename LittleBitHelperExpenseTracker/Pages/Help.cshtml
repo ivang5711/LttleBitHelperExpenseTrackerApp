@@ -1,0 +1,220 @@
+﻿@page
+@model HelpModel
+
+@{
+    ViewData["Title"] = "Help";
+}
+
+<h4>Help</h4>
+
+
+<div class="table about">
+    <p>
+        Thank you for visiting LittleBitHelper web site. On this page you'll find
+        info about the app and where to start. I hope you'll enjoy using it.
+        Feel free to send your questions and feedback to me via
+        <a href="https://github.com/ivang5711">
+            GitHub
+        </a>
+    </p>
+    <h2>About the LittleBitHelper</h2>
+    <div>
+        <p>
+            The LittleBitHelper Web App designed to make your expense tracking easy.
+            You can add your spendings records to the app via web interface as well as
+            via Telegram bot. Then you can get the overall amount spent, total amount
+            by category, records filtered by date and more.
+        </p>
+        <p>
+            Telegram bot is the on-the-go tool to add and read your records while web
+            interface is more informative and loaded tool with enhanced functionality.<br>
+        </p>
+        <p>
+            Telegram bot and web app work together. However, once a user account is created
+            they can be used separately with no limitations. To get the greatest user experience
+            it is recommended to combine usage of both tools.
+        </p>
+    </div>
+    <h2>How to use</h2>
+    <div>
+        <p>
+            In order to use the app you need to register first.
+        </p>
+        <h3>Register a new user</h3>
+        <div>
+            <p>
+                To register a new user follow these steps:
+            </p>
+            <h5>step 1</h5>
+            <p>
+                To create a new account you need to provide your Telegram ID.
+                This is a unique number given by Telegram to each user. To get your Telegram ID
+                you can simply start a conversation with the LittleBitHelperBot.
+            </p>
+            <p>
+                If you are not registered yet the bot will provide your Telegram ID in
+                the very first message.
+            </p>
+            <h5>step 2</h5>
+            <p>
+                Go to the registration page and fill it your Telegram ID in the Telegram ID field.
+                It will be used as a login. Then create a strong password and fill in confirmation
+                box. Then press register.
+            </p>
+            <h5>step 3</h5>
+            <p>
+                After registration is complete you will be redirected to the login page.
+                Fill in the login boxes with your Telegram ID and password correspondingly and press login.
+                If the login is successful you will see the main page with your records summary.
+            </p>
+        </div>
+        <h3>Web interface</h3>
+        <div>
+            <p>Let's make a quick overview of the web interface.</p>
+            <h5>Home page</h5>
+            <p>
+                The first page is the summary page. It provides a table and a chart representing your
+                expenses grouped by type. More on this later in this section. If you do not have records yet
+                there would not be anything to show. All the info appears as you add your first record.
+                Why don't we add one? To do this we should go to the Add page.
+            </p>
+            <h5>Add page</h5>
+            <p>
+                On the Add page you can use the boxes and a drop down menu to add a new record.
+                There are a couple of rules to follow.
+            </p>
+            <p>
+                The "type" field allows a single word only.
+                The word can contain any symbol except spaces. This field intended to categorize your
+                expenses by the type provided. There is no limit on the type amount. However, it is
+                recommended to stick to the reasonably limited amount of types for the sake of the
+                presentability of the statistics results and overall visual convenience.
+            </p>
+            <p>
+                The "amount" field can contain only numbers. Here you must provide a number greater than 0.
+            </p>
+            <p>
+                The "comment" field is optional. Us it as you think best. A suggestion here is to use it to
+                add some specific to the record. This can help to use search in future when the amount of
+                records becomes high.
+            </p>
+            <p>
+                Also there is a drop down list where you can pick a currency of the record.
+                If you leave this field default then the current default currency will be applied.
+                For all the new users the default currency is preset to USD. You can change your default currency
+                to any currency on the Preferences page.
+            </p>
+            <h5>History page</h5>
+            <p>
+                On the History page you can see a list of all your records.
+                By default it sorted from the most recent to the oldest ones.
+                You can choose other sorting type in the drop down menu on the top right corner of the table.
+            </p>
+            <p>
+                Next to each record there are two buttons: a Delete button and an Edit button.
+            </p>
+            <p>
+                The Delete button does exactly what it meant to do - deletes a record.
+            </p>
+            <p>
+                The Edit button provides an interface to edit a particular record. You can change any parameter except the
+                date and time. These remain the same for security reasons. Remember the type and amount fields are mandatory.
+                After edit is complete click on the Submit button and you will be redirected back to the History page.
+            </p>
+            <h5>Preferences page</h5>
+            <p>
+                On the Preferences page you can change you default currency. Pick one from the drop down list and click Submit.
+                The currency symbol and USD to the selected currency rate will appear on the page.
+                The currency rates updates once a day and provided by Openexchangerates.
+            </p>
+            <h5>Help page</h5>
+            <p>
+                Finally here you can find some info about the web app and some guides to start using it.
+                If you have any questions or want to provide some feedback - you can do it via
+                <a href="https://github.com/ivang5711">
+                    GitHub
+                </a>
+            </p>
+        </div>
+        <h3>Telegram bot</h3>
+        <div>
+            <p>
+                The Telegram bot is an accessible tool to track expenses on the go as easy
+                as possible without using additional app. Telegram can be installed on any platform either desktop or mobile and
+                the user experience is quite natural for telegram (or any other messenger) users.
+                It is just as simple as a regular chat in a messenger!
+            </p>
+            <h5>Getting started</h5>
+            <p>
+                You have to be registered in the web interface first in order to use LittleBitHelperBot.
+                See register section of this page to create an account.
+                Once registered you can start using LittleBitHelperBot with no limitations.
+            </p>
+            <p>
+                Now send "<span class="command">/start</span>" command to the bot. It will send a greeting back to you.
+                Send "<span class="command">/help</span>" command to see the list of available commands with description and usage examples.
+                See Available commands section to learn more about all the available commands.
+            </p>
+
+            <h5>Available commands</h5>
+
+            <h6>/start</h6>
+            <p>
+                Shows welcome message
+            </p>
+            <h6>/help</h6>
+            <p>
+                Shows a list of available commands
+            </p>
+            <h6>/new</h6>
+            <p>
+                Adds a new expense record. Usage: type amount comment.
+                Example:<span class="command">/new taxi 350 to airport</span><br>
+                The same rules as for the web interface apply to the telegram bot. Therefore the type
+                field must contain of a single word. Any symbol is allowed for the type
+                field except the "space" symbol.<br>
+                value field is mandatory too. It must contain digits only and must be grater than 0.<br>
+                The comment field is optional and can contain any amount of any symbols
+                including the "space" symbol. That means it can consists of multiple words.
+            </p>
+            <h6>/all</h6>
+            <p>
+                Provides a sum of all expenses for all time.
+            </p>
+            <h6>/typed</h6>
+            <p>
+                Provides a list of types with total amount spent for each type.
+            </p>
+            <h6>/history</h6>
+            <p>
+                Prints out all the records.
+            </p>
+            <h6>/delete</h6>
+            <p>
+                To delete a record you must provide an ID of the record. To get the ID you can send
+                the <span class="command">/history</span> command first, find the record of your choice, and
+                pass it's id to the delete command.<br>
+                For example: <span class="command">/delete 78</span>.
+            </p>
+            <h6>/currency</h6>
+            <p>
+                Use this command to see and update the current default currency.
+                To see the current value sent <span class="command">/currency current</span> command.<br>
+                To change the current default currency to USD
+                send <span class="command">/currency USD</span>.<br>To change to
+                Euro send <span class="command">/currency EUR</span>. If the currency
+                sent is invalid a message will inform you.
+            </p>
+        </div>
+        <p>
+            If you have any questions or suggestions don't hesitate to reach me out via
+            <a href="https://github.com/ivang5711">
+                GitHub
+            </a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

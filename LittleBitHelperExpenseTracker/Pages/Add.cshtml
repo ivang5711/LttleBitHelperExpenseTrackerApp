@@ -1,0 +1,29 @@
+﻿@page
+@model AddModel
+
+@{
+    ViewData["Title"] = "Add";
+}
+
+<h4 style="margin: 20px; display: flex; justify-content: center">Add new record</h4>
+<div style="margin: 20px; display: flex; justify-content: center">
+
+    <form method="post">
+        <input type="text" name="expenseType" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Expense Type...">
+        <input type="text" name="expenseAmount" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Expense Amount...">
+        <input type="text" name="expenseComment" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Expense Comment...">
+        <input type="datetime-local" name="dateTime" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Date and Time...">
+        <select id="currency" name="currency" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Currency...">
+            <option value="THB">THB</option>
+            <option value="USD">USD</option>
+            <option value="GEL">GEL</option>
+        </select>
+
+        <input type="submit" style="display: block; padding: 12px 20px; margin: 8px 0">
+    </form>
+
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

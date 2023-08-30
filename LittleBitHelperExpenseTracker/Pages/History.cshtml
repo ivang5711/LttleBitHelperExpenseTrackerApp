@@ -1,0 +1,62 @@
+﻿@page "{handler?}"
+@model HistoryModel
+
+@{
+    ViewData["Title"] = "History";
+}
+
+<h4 style="margin: 20px; display: flex; justify-content: center">History</h4>
+
+
+<div class="text-center" style="margin: 20px; display: flex; justify-content: center;">
+    <table class="table" style="max-inline-size: 800px;">
+        <tr>
+            <th>#</th>
+            <th>Id</th>
+            <th>Expense type</th>
+            <th>Expense amount</th>
+            <th>Expense comment</th>
+            <th>Date Time</th>
+            <th>User Id</th>
+            <th>Currency</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+
+        @{
+            int counter = 0;
+            foreach (var s in HistoryModel.UsersList.NList)
+            {
+                counter++;
+                <tr>
+                    <td>@counter</td>
+                    <td>@s.Id</td>
+                    <td>@s.ExpenseType.ToString()</td>
+                    <td>@s.ExpenseAmount.ToString()</td>
+                    <td>@s.ExpenseComment</td>
+                    <td>@s.DateTime</td>
+                    <td>@s.UserId</td>
+                    <td>@s.Currency</td>
+                    <td>
+                        <form asp-page="Edit" asp-page-handler="Test" method="post">
+                            <input name="TestString" value="@s.Id" style="visibility: hidden"/>
+                            <input type="submit" value="Edit" />
+                        </form>
+                    </td>
+
+                    <td>
+                        <form method="post">
+                            <input name="toDelete" style="visibility: hidden" value="@s.Id">
+                            <input type="submit" value="Delete">
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+
+    </table>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
