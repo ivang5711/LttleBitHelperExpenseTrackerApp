@@ -70,6 +70,10 @@ namespace LittleBitHelperExpenseTracker
                     Console.WriteLine("Message :{0} ", e.Message);
                 }
             }
+            else
+            {
+                MapJson();
+            }
 
             app.Run();
         }

@@ -33,7 +33,7 @@ namespace LittleBitHelperExpenseTracker.Models
                 PropertyNameCaseInsensitive = true
             };
 
-            Person? person = JsonSerializer.Deserialize<Person>(JsonData, options);
+            Person person = JsonSerializer.Deserialize<Person>(JsonData, options);
             PersonPersistent.Disclaimer = person!.Disclaimer;
             PersonPersistent.License = person.License;
             PersonPersistent.Timestamp = person.Timestamp;
@@ -54,7 +54,7 @@ namespace LittleBitHelperExpenseTracker.Models
                 PropertyNameCaseInsensitive = true
             };
 
-            Person? person = JsonSerializer.Deserialize<Person>(input, options);
+            Person person = JsonSerializer.Deserialize<Person>(input, options);
             if (person != null)
             {
                 File.WriteAllText("data.json", input);
@@ -78,7 +78,7 @@ namespace LittleBitHelperExpenseTracker.Models
                     PropertyNameCaseInsensitive = true
                 };
 
-                Person? person = JsonSerializer.Deserialize<Person>(JsonData, options);
+                Person person = JsonSerializer.Deserialize<Person>(JsonData, options);
                 if (person != null)
                 {
                     double timeStampJson = person.Timestamp;

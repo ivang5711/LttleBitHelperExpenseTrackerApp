@@ -8,31 +8,21 @@
 }
 
 <h4 style="margin: 20px; display: flex; justify-content: center">Preferences</h4>
-<div style="margin: 20px; display: flex; justify-content: center">
-</div>
-
+<div style="margin-left: auto; margin-right: auto; display: block; width: 25%; text-align: center" >
     <p>Base currency for all calculations is @JsonOperations.PersonPersistent.Base</p>
-    <p>Your default currency: <span class="imported_value">THB</span></p>
-<p>1 USD = <span class="imported_value">@JsonOperations.PersonPersistent.Rates["THB"]</span></p>
-<p>Rate: <span class="imported_value">@JsonOperations.PersonPersistent.Rates["THB"]</span></p>
-
-    <form method="post">
+    <p>Your default currency: <span class="imported_value">@PreferencesModel.DefaultCurrency</span></p>
+    <p>1 USD = <span class="imported_value">@JsonOperations.PersonPersistent.Rates[PreferencesModel.DefaultCurrency] @PreferencesModel.DefaultCurrency</span></p>
+    <p>Rate: <span class="imported_value">@JsonOperations.PersonPersistent.Rates[PreferencesModel.DefaultCurrency]</span></p>
+    <form method="post" style="margin-left: auto; margin-right: auto; display: block; width: 25%;">
         <select id="currency" name="currency" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Currency...">
-            
             @foreach(var item in JsonOperations.PersonPersistent.Rates.Keys)
             {
-                <text>
                 <option value="@item">@item</option>
-                </text>
             }
-
         </select>
-
         <input type="submit" style="display: block; padding: 12px 20px; margin: 8px 0">
     </form>
-
-
-
+</div>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

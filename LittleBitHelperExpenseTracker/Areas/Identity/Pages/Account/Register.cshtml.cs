@@ -158,7 +158,9 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account
         {
             try
             {
+                Console.WriteLine("Identity here<<<<<<<<<<<<<<<<");
                 return Activator.CreateInstance<IdentityUser>();
+
             }
             catch
             {
