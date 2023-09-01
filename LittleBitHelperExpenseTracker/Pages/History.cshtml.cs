@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
@@ -11,9 +12,11 @@ namespace LittleBitHelperExpenseTracker.Pages
     public class HistoryModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public HistoryModel(ILogger<IndexModel> logger)
+        public HistoryModel(UserManager<IdentityUser> userManager, ILogger<IndexModel> logger)
         {
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -49,14 +52,17 @@ namespace LittleBitHelperExpenseTracker.Pages
             return new RedirectToPageResult("/Edit", $"{id}");
         }
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
+            var user = await _userManager.GetUserAsync(User);
+            var phoneNumber = user.PhoneNumber;
+
             string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
             Console.WriteLine($"database path: {dbPath}.");
 
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
 
-            var sql = "SELECT * FROM expenses;";
+            var sql = $"SELECT * FROM expenses WHERE userId={phoneNumber};";
 
             var results = connection.Query<Expenses>(sql);
 

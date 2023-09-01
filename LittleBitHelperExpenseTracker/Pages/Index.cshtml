@@ -1,6 +1,15 @@
 ﻿@page
 @model IndexModel
 
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var userName = user.UserName;
+    var phoneNumber = user.PhoneNumber;
+}
+
 @* @model IEnumerable<LittleBitHelperExpenseTracker.Models.Expenses> *@
 
 @{
@@ -10,6 +19,12 @@
     
 
 }
+
+@* <label asp-for="Input.PhoneNumber" class="form-label"></label> *@
+
+<p>my trty: @user</p>
+<p>my trty: @userName</p>
+<p>my trty: @phoneNumber</p>
 
 <div>
 

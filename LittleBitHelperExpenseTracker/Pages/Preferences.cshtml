@@ -1,58 +1,37 @@
 ﻿@page
 @model PreferencesModel
 
+@using LittleBitHelperExpenseTracker.Models;
+
 @{
     ViewData["Title"] = "Preferences";
 }
 
-<h4>Preferences</h4>
-@* 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Preferences">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="ExpenseType" class="control-label"></label>
-                <input asp-for="ExpenseType" class="form-control" />
-                <span asp-validation-for="ExpenseType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ExpenseAmount" class="control-label"></label>
-                <input asp-for="ExpenseAmount" class="form-control" />
-                <span asp-validation-for="ExpenseAmount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ExpenseComment" class="control-label"></label>
-                <input asp-for="ExpenseComment" class="form-control" />
-                <span asp-validation-for="ExpenseComment" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DateTime" class="control-label"></label>
-                <input asp-for="DateTime" class="form-control" />
-                <span asp-validation-for="DateTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <input asp-for="UserId" class="form-control" />
-                <span asp-validation-for="UserId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Currency" class="control-label"></label>
-                <input asp-for="Currency" class="form-control" />
-                <span asp-validation-for="Currency" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+<h4 style="margin: 20px; display: flex; justify-content: center">Preferences</h4>
+<div style="margin: 20px; display: flex; justify-content: center">
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div> *@
+    <p>Base currency for all calculations is @JsonOperations.PersonPersistent.Base</p>
+    <p>Your default currency: <span class="imported_value">THB</span></p>
+<p>1 USD = <span class="imported_value">@JsonOperations.PersonPersistent.Rates["THB"]</span></p>
+<p>Rate: <span class="imported_value">@JsonOperations.PersonPersistent.Rates["THB"]</span></p>
+
+    <form method="post">
+        <select id="currency" name="currency" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Currency...">
+            
+            @foreach(var item in JsonOperations.PersonPersistent.Rates.Keys)
+            {
+                <text>
+                <option value="@item">@item</option>
+                </text>
+            }
+
+        </select>
+
+        <input type="submit" style="display: block; padding: 12px 20px; margin: 8px 0">
+    </form>
+
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

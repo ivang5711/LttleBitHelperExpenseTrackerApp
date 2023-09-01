@@ -1,6 +1,7 @@
 using LittleBitHelperExpenseTracker.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using static LittleBitHelperExpenseTracker.Models.JsonOperations;
 
 namespace LittleBitHelperExpenseTracker
 {
@@ -18,6 +19,7 @@ namespace LittleBitHelperExpenseTracker
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
             builder.Services.AddRazorPages();
 
             var app = builder.Build();
@@ -42,6 +44,9 @@ namespace LittleBitHelperExpenseTracker
             app.UseAuthorization();
 
             app.MapRazorPages();
+
+            SetJson();
+
 
             app.Run();
         }

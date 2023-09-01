@@ -1,7 +1,9 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.CodeAnalysis.CSharp;
 using System.Data.SQLite;
 
 namespace LittleBitHelperExpenseTracker.Pages
@@ -10,16 +12,27 @@ namespace LittleBitHelperExpenseTracker.Pages
     public class AddModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
+        private readonly UserManager<IdentityUser> _userManager;
+        private int phone;
+        public string CurrentUser { get; set; }
 
-        public AddModel(ILogger<IndexModel> logger)
+        public int GetPhone()
         {
+            return phone;
+        }
+
+        public void SetPhone(int value)
+        {
+            phone = value;
+        }
+
+        public AddModel(UserManager<IdentityUser> userManager, ILogger<IndexModel> logger)
+        {
+            _userManager = userManager;
             _logger = logger;
         }
 
-        public void OnGet()
-        {
-
-        }
+        
 
         public class Expenses
         {
@@ -46,11 +59,32 @@ namespace LittleBitHelperExpenseTracker.Pages
 
         public IActionResult OnPost()
         {
+            async Task StarAsync()
+            {
+                var user = await _userManager.GetUserAsync(User);
+                SetPhone(int.Parse(user.PhoneNumber));
+                CurrentUser = user.UserName;
+                await Console.Out.WriteLineAsync("PHO: " + GetPhone());
+            }
+            StarAsync();
             string expenseType = Request.Form["expenseType"];
             string expenseAmount = Request.Form["expenseAmount"];
             string expenseComment = Request.Form["expenseComment"];
             string dateTime = Request.Form["dateTime"];
-            int userId = 394761293;
+            //int userId = 394761293;
+            //int userId = 402061018;
+
+            var k = _userManager.Users.AsList().AsList();
+            foreach (var item in k)
+            {
+                if (CurrentUser == item.UserName)
+                {
+                    Console.WriteLine("pN: " + item.PhoneNumber);
+                }
+            }
+
+            int userId = GetPhone();
+
             string currency = Request.Form["currency"];
 
             Console.WriteLine("E-Mail: " +  expenseType);
