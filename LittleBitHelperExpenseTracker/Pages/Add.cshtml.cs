@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.CodeAnalysis.CSharp;
 using System.Data.SQLite;
 
 namespace LittleBitHelperExpenseTracker.Pages
@@ -32,7 +31,7 @@ namespace LittleBitHelperExpenseTracker.Pages
             _logger = logger;
         }
 
-        
+
 
         public class Expenses
         {
@@ -66,13 +65,11 @@ namespace LittleBitHelperExpenseTracker.Pages
                 CurrentUser = user.UserName;
                 await Console.Out.WriteLineAsync("PHO: " + GetPhone());
             }
-            StarAsync();
+            _ = StarAsync();
             string expenseType = Request.Form["expenseType"];
             string expenseAmount = Request.Form["expenseAmount"];
             string expenseComment = Request.Form["expenseComment"];
             string dateTime = Request.Form["dateTime"];
-            //int userId = 394761293;
-            //int userId = 402061018;
 
             var k = _userManager.Users.AsList().AsList();
             foreach (var item in k)
@@ -85,9 +82,9 @@ namespace LittleBitHelperExpenseTracker.Pages
 
             int userId = GetPhone();
 
-            string currency = Request.Form["currency"];
+            string? currency = Request.Form["currency"];
 
-            Console.WriteLine("E-Mail: " +  expenseType);
+            Console.WriteLine("E-Mail: " + expenseType);
             Console.WriteLine("E-Mail: " + expenseAmount);
             Console.WriteLine("E-Mail: " + expenseComment);
             Console.WriteLine("E-Mail: " + dateTime);

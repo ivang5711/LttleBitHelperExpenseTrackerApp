@@ -7,7 +7,14 @@ namespace LittleBitHelperExpenseTracker
 {
     public class Program
     {
-        public static void Main(string[] args)
+        protected Program()
+        {
+
+        }
+
+        // HttpClient is intended to be instantiated once per application, rather than per-use. See Remarks.
+        static readonly HttpClient client = new HttpClient();
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +31,6 @@ namespace LittleBitHelperExpenseTracker
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseMigrationsEndPoint();
@@ -32,7 +38,6 @@ namespace LittleBitHelperExpenseTracker
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -45,8 +50,26 @@ namespace LittleBitHelperExpenseTracker
 
             app.MapRazorPages();
 
-            SetJson();
+            if (!CheckJson())
+            {
+                try
+                {
+                    string ratesPath = "https://";
+                    string addr = "openexchangerates.org/api/latest.json?";
+                    string app_id = "***REMOVED***";
+                    using HttpResponseMessage response = await client.GetAsync(ratesPath + addr + app_id);
+                    response.EnsureSuccessStatusCode();
+                    string responseBody = await response.Content.ReadAsStringAsync();
 
+                    CreateJson(responseBody);
+                    MapJson();
+                }
+                catch (HttpRequestException e)
+                {
+                    Console.WriteLine("\nException Caught!");
+                    Console.WriteLine("Message :{0} ", e.Message);
+                }
+            }
 
             app.Run();
         }
