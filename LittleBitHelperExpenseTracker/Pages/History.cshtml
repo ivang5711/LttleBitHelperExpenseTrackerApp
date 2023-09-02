@@ -39,7 +39,7 @@
                     <td>@s.Currency</td>
                     <td>
                         <form asp-page="Edit" asp-page-handler="Test" method="post">
-                            <input name="TestString" value="@s.Id" style="visibility: hidden"/>
+                            <input name="TestString" value="@s.Id" style="visibility: hidden" />
                             <input type="submit" value="Edit" />
                         </form>
                     </td>
@@ -58,5 +58,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

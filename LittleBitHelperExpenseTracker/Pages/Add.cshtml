@@ -14,6 +14,7 @@
         <input type="text" name="expenseComment" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Expense Comment...">
         <input type="datetime-local" name="dateTime" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Date and Time...">
         <select id="currency" name="currency" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Currency...">
+            <option value="@AddModel.DefaultCurrency">@AddModel.DefaultCurrency</option>
             <option value="THB">THB</option>
             <option value="USD">USD</option>
             <option value="GEL">GEL</option>
@@ -25,5 +26,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -22,7 +22,6 @@ namespace LittleBitHelperExpenseTracker.Models
             public int Timestamp { get; set; }
             public required string Base { get; set; }
             public required Dictionary<string, float> Rates { get; set; }
-
         }
 
         public static void MapJson()
@@ -33,18 +32,18 @@ namespace LittleBitHelperExpenseTracker.Models
                 PropertyNameCaseInsensitive = true
             };
 
-            Person person = JsonSerializer.Deserialize<Person>(JsonData, options);
-            PersonPersistent.Disclaimer = person!.Disclaimer;
+            Person? person = JsonSerializer.Deserialize<Person>(JsonData, options);
+            if (person is null)
+            {
+                Console.WriteLine("JSON file can not be mapped");
+                return;
+            }
+
+            PersonPersistent.Disclaimer = person.Disclaimer;
             PersonPersistent.License = person.License;
             PersonPersistent.Timestamp = person.Timestamp;
             PersonPersistent.Base = person.Base;
             PersonPersistent.Rates = person.Rates;
-            Console.WriteLine("Disclaimer: " + PersonPersistent.Disclaimer);
-            Console.WriteLine("License: " + PersonPersistent.License);
-            Console.WriteLine("Timestamp: " + PersonPersistent.Timestamp);
-            Console.WriteLine("Base: " + PersonPersistent.Base);
-            Console.WriteLine("JSON is HERE!!!");
-
         }
 
         public static void CreateJson(string input)
@@ -54,7 +53,7 @@ namespace LittleBitHelperExpenseTracker.Models
                 PropertyNameCaseInsensitive = true
             };
 
-            Person person = JsonSerializer.Deserialize<Person>(input, options);
+            Person? person = JsonSerializer.Deserialize<Person>(input, options);
             if (person != null)
             {
                 File.WriteAllText("data.json", input);
@@ -72,21 +71,17 @@ namespace LittleBitHelperExpenseTracker.Models
             {
                 Console.WriteLine("File exists!");
                 JsonData = File.ReadAllText("data.json");
-
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 };
 
-                Person person = JsonSerializer.Deserialize<Person>(JsonData, options);
+                Person? person = JsonSerializer.Deserialize<Person>(JsonData, options);
                 if (person != null)
                 {
                     double timeStampJson = person.Timestamp;
                     DateTime dateTime = DateTime.UnixEpoch;
                     dateTime = dateTime.AddSeconds(timeStampJson);
-                    Console.WriteLine("Json is up to date: " + (dateTime.Date == DateTime.UtcNow.Date));
-                    Console.WriteLine(DateTime.UtcNow.Date);
-                    Console.WriteLine(dateTime.Date);
                     if (dateTime.Date == DateTime.UtcNow.Date)
                     {
                         Console.WriteLine("Json is up to date!");

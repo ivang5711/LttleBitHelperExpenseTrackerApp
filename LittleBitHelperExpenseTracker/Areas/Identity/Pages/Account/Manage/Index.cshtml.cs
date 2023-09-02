@@ -2,13 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+using Dapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.ComponentModel.DataAnnotations;
+using System.Data.SQLite;
 
 namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
 {
@@ -73,6 +72,14 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
             };
         }
 
+
+        public class Users
+        {
+            public string LocalUserName { get; set; }
+            public int LocalUserId { get; set; }
+            public required string LocalCurrency { get; set; }
+        }
+
         public async Task<IActionResult> OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -112,6 +119,15 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
+            Thread.Sleep(1000);
+            string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
+            Console.WriteLine($"database path: {dbPath}.");
+            using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
+            {
+                var sql = $"UPDATE users SET localUserId = {user.PhoneNumber} WHERE localUserName = '{user.UserName}';";
+                connection.Execute(sql);
+            }
+
             return RedirectToPage();
         }
     }

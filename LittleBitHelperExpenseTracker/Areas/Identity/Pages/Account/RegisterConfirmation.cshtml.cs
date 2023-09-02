@@ -2,15 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
 
 namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account
 {
@@ -43,6 +41,13 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public string EmailConfirmationUrl { get; set; }
+
+        public class Users
+        {
+            public string LocalUserName { get; set; }
+            public int LocalUserId { get; set; }
+            public required string LocalCurrency { get; set; }
+        }
 
         public async Task<IActionResult> OnGetAsync(string email, string returnUrl = null)
         {

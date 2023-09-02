@@ -8,65 +8,68 @@
 <h1>Edit</h1>
 
 <div class="text-center" style="margin: 20px; display: flex; justify-content: center;">
-                        <form asp-page="Edit" method="post">
-    <table class="table" style="max-inline-size: 800px;">
-        <tr>
+    <form asp-page="Edit" method="post">
+        <table class="table" style="max-inline-size: 800px;">
+            <tr>
 
-            <th>Expense type</th>
-            <th>Expense amount</th>
-            <th>Expense comment</th>
-            <th>Date Time</th>
-            <th>Currency</th>
-            <th>Submit</th>
-            <th>Cancel</th>
-        </tr>
+                <th>Expense type</th>
+                <th>Expense amount</th>
+                <th>Expense comment</th>
+                <th>Date Time</th>
+                <th>Currency</th>
+                <th>Submit</th>
+                <th>Cancel</th>
+            </tr>
 
-        @{
-            int counter = 0;
-            foreach (var s in EditModel.UsersList.NList)
-            {
-                counter++;
-                <tr>
-                    <td>
-                        <input placeholder="@s.ExpenseType.ToString()" name="expenseType" type="text">
-                    </td>
-                    <td>
-                        <input placeholder="@s.ExpenseAmount.ToString()" name="expenseAmount" type="text">
-                    </td>
-                    <td>
-                        <input placeholder="@s.ExpenseComment" name="expenseComment" type="text">
-                    </td>
-                    <td>
-                        <label>@s.DateTime</label>
-                        <input placeholder="@s.DateTime" name="dateTime" type="datetime-local">
-                    </td>
-                    <td>
-                        <select id="currency" name="currency" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Currency...">
-                            <option value="THB">THB</option>
-                            <option value="USD">USD</option>
-                            <option value="GEL">GEL</option>
-                        </select>
-                    </td>
-                    
-                    <td>
+            @{
+                int counter = 0;
+                foreach (var s in EditModel.UsersList.NList)
+                {
+                    counter++;
+                    <tr>
+                        <td>
+                            <input placeholder="@s.ExpenseType.ToString()" name="expenseType" type="text">
+                        </td>
+                        <td>
+                            <input placeholder="@s.ExpenseAmount.ToString()" name="expenseAmount" type="text">
+                        </td>
+                        <td>
+                            <input placeholder="@s.ExpenseComment" name="expenseComment" type="text">
+                        </td>
+                        <td>
+                            <label>@s.DateTime</label>
+                            <input placeholder="@s.DateTime" name="dateTime" type="datetime-local">
+                        </td>
+                        <td>
+                            <select id="currency" name="currency" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Currency...">
+                                <option value="@s.Currency">@s.Currency</option>
+                                <option value="THB">THB</option>
+                                <option value="USD">USD</option>
+                                <option value="GEL">GEL</option>
+                            </select>
+                        </td>
+
+                        <td>
                             <input name="change" style="visibility: hidden" value="true">
                             <input type="submit" value="Submit">
-                    </td>
+                        </td>
 
-                    <td>
-                        
+                        <td>
+
                             <input name="change" style="visibility: hidden" value="false">
                             <input type="submit" value="Cancel">
-                        
-                    </td>
-                </tr>
-            }
-        }
 
-    </table>
-                        </form>
+                        </td>
+                    </tr>
+                }
+            }
+
+        </table>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

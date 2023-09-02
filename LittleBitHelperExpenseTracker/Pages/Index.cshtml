@@ -6,102 +6,84 @@
 
 @{
     var user = await UserManager.GetUserAsync(User);
-    var userName = user.UserName;
-    var phoneNumber = user.PhoneNumber;
+    // var userName = user.UserName;
+    // var phoneNumber = user.PhoneNumber;
+    // var tmp = new IndexModel(UserManager);
 }
-
-@* @model IEnumerable<LittleBitHelperExpenseTracker.Models.Expenses> *@
 
 @{
     ViewData["Title"] = "Home page";
     List<string> tmpList = new List<string>();
-    List<int> tmpIntList = new List<int>();
-    
-
+    List<float> tmpIntList = new List<float>();
 }
 
-@* <label asp-for="Input.PhoneNumber" class="form-label"></label> *@
-
-<p>my trty: @user</p>
-<p>my trty: @userName</p>
-<p>my trty: @phoneNumber</p>
-
 <div>
-
     <div style="margin: 20px; display: flex; justify-content: center;">
-
         <canvas id="myChart" style="max-inline-size: 800px;"></canvas>
+        <script type="text/javascript">
+            var xValues = [];
+            var yValues = [];
+            @foreach (var item in IndexModel.UsersList.FinalList)
+            {
+                tmpList.Add(item.ExpenseType);
+                tmpIntList.Add(item.ExpenseAmount);
+                var k1 = item.ExpenseType;
+                var i2 = item.ExpenseAmount;
+                <text>
+                    xValues.push('@k1');
+                yValues.push(@i2);
+                </text>
+            }
 
-        <script type="text/javascript" >
+                        var barColors = [
+                "#b91d47",
+                "#00aba9",
+                "#235790",
+                "#e8c3b9",
+                "#1b9745",
+                "#1e7145"
+            ];
 
-    var xValues = [];
-    var yValues = [];
-
-    @foreach(var item in IndexModel.UsersList.NList)
-    {
-        tmpList.Add(item.ExpenseType);
-        tmpIntList.Add(item.ExpenseAmount);
-
-        var k1 = item.ExpenseType;
-        
-        var i2 = item.ExpenseAmount;
-        <text>
-            xValues.push('@k1');
-            yValues.push(@i2);
-        </text>
-    }
-
-
-var barColors = [
-  "#b91d47",
-  "#00aba9",
-  "#235790",
-  "#e8c3b9",
-  "#1b9745",
-  "#1e7145"
-];
-
-new Chart("myChart", {
-  type: "pie",
-  data: {
-    labels: xValues,
-    datasets: [{
-      backgroundColor: barColors,
-      data: yValues
-    }]
-  },
-  options: {
-    title: {
-      display: true,
-      text: "Expenses by type diagram"
-    }
-  }
-});
-</script>
-</div>
-
+            new Chart("myChart", {
+                type: "pie",
+                data: {
+                    labels: xValues,
+                    datasets: [{
+                        backgroundColor: barColors,
+                        data: yValues
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: "Expenses by type diagram"
+                    }
+                }
+            });
+        </script>
+    </div>
+    <p style="text-align: center">All expenses shown in your default currency: @IndexModel.DefaultCurrency</p>
     <div class="text-center" style="margin: 20px; display: flex; justify-content: center;">
         <table class="table" style="max-inline-size: 800px;">
-        <tr>
-            <th>#</th>
-            <th>Expense type</th>
-            <th>Expense amount</th>
-        </tr>
-
-        @{
-            int counter = 0;
-            foreach (var s in IndexModel.UsersList.NList)
-            {
-                counter++;
-                <tr>
-                    <td>@counter</td>
-                    <td>@s.ExpenseType.ToString()</td>
-                    <td>@s.ExpenseAmount.ToString()</td>
-                </tr>
+            <tr>
+                <th>#</th>
+                <th>Expense type</th>
+                <th>Expense amount</th>
+            </tr>
+            @{
+                int counter = 0;
+                foreach (var s in IndexModel.UsersList.FinalList)
+                {
+                    counter++;
+                    <tr>
+                        <td>@counter</td>
+                        <td>@s.ExpenseType.ToString()</td>
+                        <td>@s.ExpenseAmount.ToString()</td>
+                    </tr>
+                }
             }
-        }
 
-    </table>
-</div>
+        </table>
+    </div>
 
 </div>
