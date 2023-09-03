@@ -42,7 +42,7 @@ namespace LittleBitHelperExpenseTracker.Pages
         {
             public int Id { get; set; }
             public string ExpenseType { get; set; } = string.Empty;
-            public int ExpenseAmount { get; set; }
+            public float ExpenseAmount { get; set; }
             public string ExpenseComment { get; set; } = string.Empty;
             public DateTime DateTime { get; set; }
             public int UserId { get; set; }
@@ -145,7 +145,7 @@ namespace LittleBitHelperExpenseTracker.Pages
             using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
             {
                 var sql = "INSERT INTO expenses (expenseType, expenseAmount, expenseComment, dateTime, userId, currency) VALUES (@ExpenseType, @ExpenseAmount, @ExpenseComment, @DateTime, @UserId, @Currency)";
-                var newRecord = new Expenses() { ExpenseType = expenseType, ExpenseAmount = int.Parse(expenseAmount), ExpenseComment = expenseComment, DateTime = Convert.ToDateTime(dateTime), UserId = userId, Currency = currency };
+                var newRecord = new Expenses() { ExpenseType = expenseType, ExpenseAmount = float.Parse(expenseAmount), ExpenseComment = expenseComment, DateTime = Convert.ToDateTime(dateTime), UserId = userId, Currency = currency };
                 var rowsAffected = connection.Execute(sql, newRecord);
                 Console.WriteLine($"{rowsAffected} row(s) inserted.");
             }

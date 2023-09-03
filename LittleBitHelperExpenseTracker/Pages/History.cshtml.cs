@@ -23,7 +23,7 @@ namespace LittleBitHelperExpenseTracker.Pages
         {
             public int Id { get; set; }
             public string ExpenseType { get; set; } = string.Empty;
-            public int ExpenseAmount { get; set; }
+            public float ExpenseAmount { get; set; }
             public string ExpenseComment { get; set; } = string.Empty;
             public DateTime DateTime { get; set; }
             public int UserId { get; set; }

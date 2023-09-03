@@ -20,7 +20,7 @@ namespace LittleBitHelperExpenseTracker.Pages
         {
             public int Id { get; set; }
             public string ExpenseType { get; set; } = string.Empty;
-            public int ExpenseAmount { get; set; }
+            public float ExpenseAmount { get; set; }
             public string ExpenseComment { get; set; } = string.Empty;
             public DateTime DateTime { get; set; }
             public int UserId { get; set; }
@@ -76,7 +76,7 @@ namespace LittleBitHelperExpenseTracker.Pages
             {
                 var sql = $"UPDATE expenses SET expenseType = @ExpenseType, expenseAmount = @ExpenseAmount, expenseComment = @ExpenseComment, dateTime = @DateTime, currency = @Currency WHERE id = {currentId};";
                 Console.WriteLine($"EXP TYPE: {expenseType} EXP AMNT: {expenseAmount} EXP COMM: {expenseComment} DATETIME: {dateTime} CURR: {currency} CURid: {currentId}");
-                var newRecord = new Expenses() { ExpenseType = expenseType, ExpenseAmount = int.Parse(expenseAmount), ExpenseComment = expenseComment, DateTime = Convert.ToDateTime(dateTime), Currency = currency };
+                var newRecord = new Expenses() { ExpenseType = expenseType, ExpenseAmount = float.Parse(expenseAmount), ExpenseComment = expenseComment, DateTime = Convert.ToDateTime(dateTime), Currency = currency };
                 connection.Execute(sql, newRecord);
             }
 
