@@ -3,6 +3,8 @@ using LittleBitHelperExpenseTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using static LittleBitHelperExpenseTracker.Models.JsonOperations;
+using LittleBitHelperExpenseTracker.Models;
+
 
 
 namespace LittleBitHelperExpenseTracker

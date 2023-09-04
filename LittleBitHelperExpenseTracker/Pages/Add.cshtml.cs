@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using System.Data.SQLite;
+using LittleBitHelperExpenseTracker.Models;
 
 namespace LittleBitHelperExpenseTracker.Pages
 {
