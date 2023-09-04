@@ -13,7 +13,6 @@ namespace LittleBitHelperExpenseTracker
         }
 
         // HttpClient is intended to be instantiated once per application, rather than per-use. See Remarks.
-        static readonly HttpClient client = new();
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -41,28 +40,8 @@ namespace LittleBitHelperExpenseTracker
             app.UseRouting();
             app.UseAuthorization();
             app.MapRazorPages();
-            if (!CheckJson())
-            {
-                try
-                {
-                    string? ratesPath = Environment.GetEnvironmentVariable("exchangeRatesProviderPath");
-                    string? app_id = Environment.GetEnvironmentVariable("exchangeAppId");
-                    using HttpResponseMessage response = await client.GetAsync(ratesPath + app_id);
-                    response.EnsureSuccessStatusCode();
-                    string responseBody = await response.Content.ReadAsStringAsync();
-                    CreateJson(responseBody);
-                    MapJson();
-                }
-                catch (HttpRequestException e)
-                {
-                    Console.WriteLine("\nException Caught!");
-                    Console.WriteLine("Message :{0} ", e.Message);
-                }
-            }
-            else
-            {
-                MapJson();
-            }
+
+            await JsonCheckAndUpdate();
 
             app.Run();
         }

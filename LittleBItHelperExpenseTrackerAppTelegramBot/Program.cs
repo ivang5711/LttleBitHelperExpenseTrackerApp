@@ -442,8 +442,6 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
             return Task.CompletedTask;
         }
 
-        static readonly HttpClient client = new HttpClient();
-
         private static async Task Main()
         {
             if (botToken is null)
@@ -453,29 +451,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
             ITelegramBotClient bot = new TelegramBotClient(botToken);
 
-            if (!CheckJson())
-            {
-                try
-                {
-                    string? ratesPath = Environment.GetEnvironmentVariable("exchangeRatesProviderPath");
-                    string? app_id = Environment.GetEnvironmentVariable("exchangeAppId");
-                    using HttpResponseMessage response = await client.GetAsync(ratesPath + app_id);
-                    response.EnsureSuccessStatusCode();
-                    string responseBody = await response.Content.ReadAsStringAsync();
-
-                    CreateJson(responseBody);
-                    MapJson();
-                }
-                catch (HttpRequestException e)
-                {
-                    Console.WriteLine("\nException Caught!");
-                    Console.WriteLine("Message :{0} ", e.Message);
-                }
-            }
-            else
-            {
-                MapJson();
-            }
+            await JsonCheckAndUpdate();
 
             Console.WriteLine("Bot client for \"" + bot.GetMeAsync().Result.FirstName + "\" bot started");
             var cts = new CancellationTokenSource();

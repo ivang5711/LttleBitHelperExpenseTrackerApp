@@ -7,6 +7,8 @@ namespace LittleBitHelperExpenseTracker.Models
         public static string JsonData { get; set; } = string.Empty;
         public static string? JsonPath { get; set; } = Environment.GetEnvironmentVariable("jsonPath");
 
+        static readonly HttpClient client = new();
+
         public static class PersonPersistent
         {
             public static string Disclaimer { get; set; } = string.Empty;
@@ -108,6 +110,32 @@ namespace LittleBitHelperExpenseTracker.Models
 
             Console.WriteLine("File does not exist");
             return false;
+        }
+
+        public static async Task JsonCheckAndUpdate()
+        {
+            if (!CheckJson())
+            {
+                try
+                {
+                    string? ratesPath = Environment.GetEnvironmentVariable("exchangeRatesProviderPath");
+                    string? app_id = Environment.GetEnvironmentVariable("exchangeAppId");
+                    using HttpResponseMessage response = await client.GetAsync(ratesPath + app_id);
+                    response.EnsureSuccessStatusCode();
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    CreateJson(responseBody);
+                    MapJson();
+                }
+                catch (HttpRequestException e)
+                {
+                    Console.WriteLine("\nException Caught!");
+                    Console.WriteLine("Message :{0} ", e.Message);
+                }
+            }
+            else
+            {
+                MapJson();
+            }
         }
     }
 }
