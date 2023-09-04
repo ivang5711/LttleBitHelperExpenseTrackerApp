@@ -11,6 +11,7 @@ namespace LittleBitHelperExpenseTracker.Models
     {
 
         private readonly UserManager<IdentityUser> _userManager;
+        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
         public string CurrentUser { get; set; } = string.Empty;
         public string DefaultCurrency { get; set; } = string.Empty;
         public GetDefaultCurrency(UserManager<IdentityUser> userManager)
@@ -40,7 +41,6 @@ namespace LittleBitHelperExpenseTracker.Models
 
             _ = StarAsync();
             Thread.Sleep(100);
-            string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(CurrentUser)};";
             var result = connection.Query<Users>(sql);

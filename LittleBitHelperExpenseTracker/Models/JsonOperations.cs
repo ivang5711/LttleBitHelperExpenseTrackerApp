@@ -5,6 +5,7 @@ namespace LittleBitHelperExpenseTracker.Models
     public static class JsonOperations
     {
         public static string JsonData { get; set; } = string.Empty;
+        public static string? JsonPath { get; set; } = Environment.GetEnvironmentVariable("jsonPath");
 
         public static class PersonPersistent
         {
@@ -26,7 +27,12 @@ namespace LittleBitHelperExpenseTracker.Models
 
         public static void MapJson()
         {
-            JsonData = File.ReadAllText("data.json");
+            if (JsonPath == null)
+            {
+                throw new ArgumentException(nameof(JsonPath));
+            }
+
+            JsonData = File.ReadAllText(JsonPath);
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
@@ -48,6 +54,11 @@ namespace LittleBitHelperExpenseTracker.Models
 
         public static void CreateJson(string input)
         {
+            if (JsonPath == null)
+            {
+                throw new ArgumentException(nameof(JsonPath));
+            }
+
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
@@ -56,7 +67,8 @@ namespace LittleBitHelperExpenseTracker.Models
             Person? person = JsonSerializer.Deserialize<Person>(input, options);
             if (person != null)
             {
-                File.WriteAllText("data.json", input);
+
+                File.WriteAllText(JsonPath, input);
                 Console.WriteLine("JSON file updated!!!");
             }
             else
@@ -67,10 +79,10 @@ namespace LittleBitHelperExpenseTracker.Models
 
         public static bool CheckJson()
         {
-            if (File.Exists("data.json"))
+            if (File.Exists(JsonPath))
             {
                 Console.WriteLine("File exists!");
-                JsonData = File.ReadAllText("data.json");
+                JsonData = File.ReadAllText(JsonPath);
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true

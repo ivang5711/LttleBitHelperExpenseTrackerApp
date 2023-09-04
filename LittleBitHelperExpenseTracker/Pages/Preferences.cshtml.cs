@@ -11,6 +11,7 @@ namespace LittleBitHelperExpenseTracker.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly UserManager<IdentityUser> _userManager;
+        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
         public string CurrentUser { get; set; } = string.Empty;
         public static string DefaultCurrency { get; set; } = string.Empty;
         public PreferencesModel(UserManager<IdentityUser> userManager, ILogger<IndexModel> logger)
@@ -21,8 +22,9 @@ namespace LittleBitHelperExpenseTracker.Pages
 
         public class Users
         {
+            public string LocalUserName { get; set; } = string.Empty;
             public int LocalUserId { get; set; }
-            public required string LocalCurrency { get; set; }
+            public string LocalCurrency { get; set; } = string.Empty;
         }
 
         public void GetDefaultCurrecncy()
@@ -34,20 +36,24 @@ namespace LittleBitHelperExpenseTracker.Pages
                 {
                     throw new ArgumentException(nameof(user));
                 }
+
                 CurrentUser = user.PhoneNumber;
+                await Console.Out.WriteLineAsync(" BANKG Current USER hERE!=" + CurrentUser);
             }
 
             _ = StarAsync();
             Thread.Sleep(100);
-            string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
             Console.WriteLine($"database path: {dbPath}.");
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(CurrentUser)};";
             var result = connection.Query<Users>(sql);
-            Console.WriteLine("Result: " + result.ToList()[0].LocalCurrency);
-            DefaultCurrency = string.Empty;
-            DefaultCurrency = result.ToList()[0].LocalCurrency;
-            Console.WriteLine("DEFCU = " + DefaultCurrency);
+            Thread.Sleep(100);
+            DefaultCurrency = "USD";
+            foreach (Users user in result)
+            {
+                Console.WriteLine("user cur= " + user.LocalCurrency);
+                DefaultCurrency = result.ToList()[0].LocalCurrency;
+            }
         }
 
         public void OnGet()
@@ -55,40 +61,31 @@ namespace LittleBitHelperExpenseTracker.Pages
             GetDefaultCurrecncy();
         }
 
-        public Task OnPost()
+        public async Task OnPostAsync()
         {
-            GetDefaultCurrecncy();
-            async Task StarAsync()
+            IdentityUser? user = await _userManager.GetUserAsync(User);
+            if (user is null || user.PhoneNumber is null)
             {
-                var user = await _userManager.GetUserAsync(User);
-                if (user is null || user.PhoneNumber is null)
-                {
-                    throw new ArgumentException(nameof(user));
-                }
-
-                CurrentUser = user.PhoneNumber;
-                await Console.Out.WriteLineAsync("CurrentUser: " + CurrentUser);
+                throw new ArgumentException(nameof(user));
             }
 
-            _ = StarAsync();
+            CurrentUser = user.PhoneNumber;
+            await Console.Out.WriteLineAsync("CurrentUser: " + CurrentUser);
             string? localCurrency = Request.Form["currency"];
             if (localCurrency is null)
             {
                 throw new ArgumentException(nameof(localCurrency));
             }
 
-            Console.WriteLine("Currency: " + localCurrency);
-            string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
             Console.WriteLine($"database path: {dbPath}.");
-            using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
+            using (SQLiteConnection connection = new($"Data Source={dbPath}"))
             {
-                var sql = "Update users SET localCurrency = @LocalCurrency WHERE localUserId = @LocalUserId;";
-                Users newRecord = new Users() { LocalUserId = int.Parse(CurrentUser), LocalCurrency = localCurrency };
-                var rowsAffected = connection.Execute(sql, newRecord);
+                string sql = "Update users SET localCurrency = @LocalCurrency WHERE localUserId = @LocalUserId;";
+                Users newRecord = new() { LocalUserId = int.Parse(CurrentUser), LocalCurrency = localCurrency };
+                int rowsAffected = connection.Execute(sql, newRecord);
                 Console.WriteLine($"{rowsAffected} row(s) inserted.");
             }
-            GetDefaultCurrecncy();
-            return Task.CompletedTask;
+            DefaultCurrency = localCurrency;
         }
     }
 }

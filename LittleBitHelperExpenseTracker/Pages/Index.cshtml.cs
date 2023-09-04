@@ -12,6 +12,7 @@ namespace LittleBitHelperExpenseTracker.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly UserManager<IdentityUser> _userManager;
+        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
 
         public IndexModel(UserManager<IdentityUser> userManager, ILogger<IndexModel> logger)
         {
@@ -33,19 +34,22 @@ namespace LittleBitHelperExpenseTracker.Pages
                 }
 
                 CurrentUser = user.PhoneNumber;
+                await Console.Out.WriteLineAsync(" BANKG Current USER hERE!=" + CurrentUser);
             }
 
             _ = StarAsync();
             Thread.Sleep(100);
-            string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
             Console.WriteLine($"database path: {dbPath}.");
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(CurrentUser)};";
             var result = connection.Query<Users>(sql);
             Thread.Sleep(100);
-            Console.WriteLine("Result: " + result.ToList()[0].LocalCurrency);
-            DefaultCurrency = result.ToList()[0].LocalCurrency;
-            Console.WriteLine("DEFCU = " + DefaultCurrency);
+            DefaultCurrency = "USD";
+            foreach (Users user in result)
+            {
+                Console.WriteLine("user cur= " + user.LocalCurrency);
+                DefaultCurrency = result.ToList()[0].LocalCurrency;
+            }
         }
 
         public async Task OnGetAsync()
@@ -62,7 +66,7 @@ namespace LittleBitHelperExpenseTracker.Pages
             var phoneNumber = user.PhoneNumber;
             if (phoneNumber != null)
             {
-                string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
+                GetDefaultCurrecncy();
                 Console.WriteLine($"database path: {dbPath}.");
                 using var connection = new SQLiteConnection($"Data Source={dbPath}");
                 var sql = $"SELECT expenseType, SUM(expenseAmount) AS expenseAmount, currency FROM expenses WHERE userId={phoneNumber} GROUP BY expenseType, currency;";
@@ -90,7 +94,6 @@ namespace LittleBitHelperExpenseTracker.Pages
                     }
 
                     GetDefaultCurrecncy();
-                    Console.WriteLine("2-DEFCUR:= " + DefaultCurrency);
                     foreach (var item in UsersList.FinalList)
                     {
                         item.ExpenseAmount *= JsonOperations.PersonPersistent.Rates[DefaultCurrency];
@@ -100,7 +103,7 @@ namespace LittleBitHelperExpenseTracker.Pages
             else
             {
                 UsersList.FinalList.Clear();
-                int tempTime = (int)(DateTime.UtcNow.Ticks / 1000);
+                int tempTime = Random.Shared.Next();
                 _ = _userManager.SetPhoneNumberAsync(user, tempTime.ToString());
                 var a = _userManager.GenerateChangePhoneNumberTokenAsync(user, tempTime.ToString()).Result;
                 _ = _userManager.ChangePhoneNumberAsync(user, tempTime.ToString(), a);
@@ -111,7 +114,6 @@ namespace LittleBitHelperExpenseTracker.Pages
                 }
 
                 Thread.Sleep(1000);
-                string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
                 Console.WriteLine($"database path: {dbPath}.");
                 using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
                 {

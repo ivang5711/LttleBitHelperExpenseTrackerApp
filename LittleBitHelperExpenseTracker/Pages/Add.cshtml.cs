@@ -13,6 +13,7 @@ namespace LittleBitHelperExpenseTracker.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly UserManager<IdentityUser> _userManager;
+        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
         private int phone;
         public static string DefaultCurrency { get; set; } = string.Empty;
         public string CurrentUser { get; set; } = string.Empty;
@@ -58,29 +59,63 @@ namespace LittleBitHelperExpenseTracker.Pages
             public static List<Expenses> NList { get; set; } = new List<Expenses>();
         }
 
+
+        public void GetDefaultCurrecncy()
+        {
+            async Task StarAsync()
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user is null || user.PhoneNumber is null)
+                {
+                    throw new ArgumentException(nameof(user));
+                }
+
+                CurrentUser = user.PhoneNumber;
+                await Console.Out.WriteLineAsync(" BANKG Current USER hERE!=" + CurrentUser);
+            }
+
+            _ = StarAsync();
+            Thread.Sleep(100);
+            Console.WriteLine($"database path: {dbPath}.");
+            using var connection = new SQLiteConnection($"Data Source={dbPath}");
+            var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(CurrentUser)};";
+            var result = connection.Query<Users>(sql);
+            Thread.Sleep(100);
+            DefaultCurrency = "USD";
+            foreach (Users user in result)
+            {
+                Console.WriteLine("user cur= " + user.LocalCurrency);
+                DefaultCurrency = result.ToList()[0].LocalCurrency;
+            }
+        }
+
         public async Task OnGetAsync()
         {
-            Console.WriteLine("Get here! ");
             var user = await _userManager.GetUserAsync(User);
             if (user is null || user.PhoneNumber is null)
             {
                 throw new ArgumentException(nameof(user));
             }
 
+            GetDefaultCurrecncy();
             SetPhone(int.Parse(user.PhoneNumber));
             CurrentUser = user.PhoneNumber;
             await Console.Out.WriteLineAsync("PHO: " + GetPhone());
-            Console.WriteLine("PHones:" + GetPhone());
             Thread.Sleep(100);
-            string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
             Console.WriteLine($"database path: {dbPath}.");
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(CurrentUser)};";
             var result = connection.Query<Users>(sql);
-            Console.WriteLine("Result: " + result.ToList()[0].LocalCurrency);
-            DefaultCurrency = result.ToList()[0].LocalCurrency;
-            Console.WriteLine("DEFCU = " + DefaultCurrency);
-            await Console.Out.WriteLineAsync("GRAND FINALE!");
+            if (result.Any())
+            {
+                DefaultCurrency = result.ToList()[0].LocalCurrency;
+                await Console.Out.WriteLineAsync("GRAND FINALE!");
+            }
+            else
+            {
+                DefaultCurrency = "USD";
+            }
+
         }
 
         public IActionResult OnPost()
@@ -93,6 +128,7 @@ namespace LittleBitHelperExpenseTracker.Pages
                     throw new ArgumentException(nameof(user));
                 }
 
+                GetDefaultCurrecncy();
                 SetPhone(int.Parse(user.PhoneNumber));
                 CurrentUser = user.UserName;
                 await Console.Out.WriteLineAsync("PHO: " + GetPhone());
@@ -133,14 +169,20 @@ namespace LittleBitHelperExpenseTracker.Pages
             }
 
             Thread.Sleep(100);
+            var user = _userManager.GetUserAsync(User).Result;
+            if (user is null || user.PhoneNumber is null)
+            {
+                throw new ArgumentException(nameof(user));
+            }
+
+            SetPhone(int.Parse(user.PhoneNumber));
             int userId = GetPhone();
             string? currency = Request.Form["currency"];
-            if (currency == null)
+            if (currency == null || Request.Form is null)
             {
                 throw new ArgumentException(nameof(currency));
             }
 
-            string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
             Console.WriteLine($"database path: {dbPath}.");
             using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
             {

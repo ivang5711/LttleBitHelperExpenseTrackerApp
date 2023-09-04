@@ -12,6 +12,7 @@ namespace LittleBitHelperExpenseTracker.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly UserManager<IdentityUser> _userManager;
+        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
 
         public HistoryModel(UserManager<IdentityUser> userManager, ILogger<IndexModel> logger)
         {
@@ -57,7 +58,6 @@ namespace LittleBitHelperExpenseTracker.Pages
             }
 
             var phoneNumber = user.PhoneNumber;
-            string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
             Console.WriteLine($"database path: {dbPath}.");
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             var sql = $"SELECT * FROM expenses WHERE userId={phoneNumber};";
@@ -77,7 +77,6 @@ namespace LittleBitHelperExpenseTracker.Pages
             else if (toDelete != null)
             {
                 int del = int.Parse(toDelete);
-                string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
                 Console.WriteLine($"database path: {dbPath}.");
                 using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
                 {

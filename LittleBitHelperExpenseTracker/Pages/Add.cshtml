@@ -1,6 +1,8 @@
 ﻿@page
 @model AddModel
 
+@using LittleBitHelperExpenseTracker.Models;
+
 @{
     ViewData["Title"] = "Add";
 }
@@ -15,9 +17,10 @@
         <input type="datetime-local" name="dateTime" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Date and Time...">
         <select id="currency" name="currency" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Currency...">
             <option value="@AddModel.DefaultCurrency">@AddModel.DefaultCurrency</option>
-            <option value="THB">THB</option>
-            <option value="USD">USD</option>
-            <option value="GEL">GEL</option>
+            @foreach (var item in JsonOperations.PersonPersistent.Rates.Keys)
+            {
+                <option value="@item">@item</option>
+            }
         </select>
 
         <input type="submit" style="display: block; padding: 12px 20px; margin: 8px 0">

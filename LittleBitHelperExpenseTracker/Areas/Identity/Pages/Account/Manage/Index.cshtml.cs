@@ -15,6 +15,7 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private static readonly string dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
@@ -55,7 +56,7 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Phone]
-            [Display(Name = "Phone number5")]
+            [Display(Name = "Telegram ID")]
             public string PhoneNumber { get; set; }
         }
 
@@ -63,15 +64,12 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
         {
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-
             Username = userName;
-
             Input = new InputModel
             {
                 PhoneNumber = phoneNumber
             };
         }
-
 
         public class Users
         {
@@ -86,6 +84,13 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
+            {
+                var sql = $"SELECT * FROM users WHERE localUserName = '{user.UserName}';";
+                var res = connection.Query<Users>(sql);
+                await _userManager.SetPhoneNumberAsync(user, res.ToList()[0].LocalUserId.ToString());
             }
 
             await LoadAsync(user);
@@ -106,28 +111,60 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input.PhoneNumber != phoneNumber)
+            var tempUserNumber = user.PhoneNumber;
+            Console.WriteLine("TempUN = " + tempUserNumber);
+            user.PhoneNumber = Input.PhoneNumber;
+            using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
             {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
+                var sql = $"UPDATE users SET localUserId = {user.PhoneNumber} WHERE localUserName = '{user.UserName}';";
+                try
                 {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
+                    connection.Execute(sql);
+                }
+                catch (SQLiteException)
+                {
+                    StatusMessage = "Error occured. The ID value already used.";
+                    return RedirectToPage();
+                }
+                catch (Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    await Console.Out.WriteLineAsync($"SQLite DB update exception:\n{ex}");
+                    Console.ForegroundColor = ConsoleColor.White;
                     return RedirectToPage();
                 }
             }
 
-            await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
-            Thread.Sleep(1000);
-            string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
-            Console.WriteLine($"database path: {dbPath}.");
-            using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
+            var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+            if (!setPhoneResult.Succeeded)
             {
-                var sql = $"UPDATE users SET localUserId = {user.PhoneNumber} WHERE localUserName = '{user.UserName}';";
-                connection.Execute(sql);
+                StatusMessage = "Unexpected error when trying to set phone number.";
+                return RedirectToPage();
             }
 
+            await _signInManager.RefreshSignInAsync(user);
+            using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
+            {
+                var sql = $"UPDATE expenses SET userId = {user.PhoneNumber} WHERE userId = {tempUserNumber};";
+                try
+                {
+                    connection.Execute(sql);
+                }
+                catch (SQLiteException ex)
+                {
+                    StatusMessage = "Error occured." + ex;
+                    return RedirectToPage();
+                }
+                catch (Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    await Console.Out.WriteLineAsync($"SQLite DB update exception:\n{ex}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    return RedirectToPage();
+                }
+            }
+
+            StatusMessage = "Your profile has been updated";
             return RedirectToPage();
         }
     }

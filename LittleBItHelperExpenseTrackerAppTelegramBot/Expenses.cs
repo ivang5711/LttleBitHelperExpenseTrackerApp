@@ -1,4 +1,4 @@
-﻿namespace TelegramBotExperiments
+﻿namespace LittleBitHelperExpenseTrackerAppTelegramBot
 {
     public class Expenses
     {

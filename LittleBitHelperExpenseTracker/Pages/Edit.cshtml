@@ -1,6 +1,8 @@
 ﻿@page
 @model EditModel
 
+@using LittleBitHelperExpenseTracker.Models;
+
 @{
     ViewData["Title"] = "Edit";
 }
@@ -43,9 +45,11 @@
                         <td>
                             <select id="currency" name="currency" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Currency...">
                                 <option value="@s.Currency">@s.Currency</option>
-                                <option value="THB">THB</option>
-                                <option value="USD">USD</option>
-                                <option value="GEL">GEL</option>
+                                <option value="@PreferencesModel.DefaultCurrency">@PreferencesModel.DefaultCurrency</option>
+                                @foreach (var item in JsonOperations.PersonPersistent.Rates.Keys)
+                                {
+                                    <option value="@item">@item</option>
+                                }
                             </select>
                         </td>
 

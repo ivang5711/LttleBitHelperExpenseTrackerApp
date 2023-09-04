@@ -10,6 +10,7 @@ namespace LittleBitHelperExpenseTracker.Pages
     public class EditModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
+        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
 
         public EditModel(ILogger<IndexModel> logger)
         {
@@ -70,7 +71,6 @@ namespace LittleBitHelperExpenseTracker.Pages
                 throw new ArgumentException(nameof(expenseType));
             }
 
-            string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
             Console.WriteLine($"database path: {dbPath}.");
             using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
             {
@@ -86,7 +86,6 @@ namespace LittleBitHelperExpenseTracker.Pages
         public void OnPostTest(string TestString)
         {
             int getId = int.Parse(TestString);
-            string dbPath = "..\\LittleBitHelperExpenseTracker\\tracker-database.db";
             Console.WriteLine($"database path: {dbPath}.");
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             var sql = $"SELECT * FROM expenses WHERE id={getId};";

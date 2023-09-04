@@ -399,3 +399,6 @@ FodyWeavers.xsd
 
 # SQLite files
 *.db
+
+# Json data files
+data.json
