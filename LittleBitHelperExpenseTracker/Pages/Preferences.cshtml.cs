@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using LittleBitHelperExpenseTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -18,13 +19,6 @@ namespace LittleBitHelperExpenseTracker.Pages
         {
             _userManager = userManager;
             _logger = logger;
-        }
-
-        public class Users
-        {
-            public string LocalUserName { get; set; } = string.Empty;
-            public int LocalUserId { get; set; }
-            public string LocalCurrency { get; set; } = string.Empty;
         }
 
         public void GetDefaultCurrecncy()

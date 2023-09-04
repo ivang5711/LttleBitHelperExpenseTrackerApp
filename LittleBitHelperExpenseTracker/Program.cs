@@ -1,7 +1,9 @@
 using LittleBitHelperExpenseTracker.Data;
+using LittleBitHelperExpenseTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using static LittleBitHelperExpenseTracker.Models.JsonOperations;
+
 
 namespace LittleBitHelperExpenseTracker
 {
@@ -12,12 +14,12 @@ namespace LittleBitHelperExpenseTracker
 
         }
 
-        // HttpClient is intended to be instantiated once per application, rather than per-use. See Remarks.
+        public static Settings? Default { get; set; }
+
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            // Add services to the container.
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -40,9 +42,22 @@ namespace LittleBitHelperExpenseTracker
             app.UseRouting();
             app.UseAuthorization();
             app.MapRazorPages();
+            Default = builder.Configuration.Get<Settings>();
+            if (Default != null)
+            {
+                if (Default.InitialConsoleOutputColor == "Red")
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                }
+                else if (Default.InitialConsoleOutputColor == "Green")
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
+
+                await Console.Out.WriteLineAsync(Default.InitialConsoleOutputColor);
+            }
 
             await JsonCheckAndUpdate();
-
             app.Run();
         }
     }

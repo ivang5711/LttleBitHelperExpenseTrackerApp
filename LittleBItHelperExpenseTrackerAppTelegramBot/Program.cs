@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using LittleBitHelperExpenseTracker.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.Data.SQLite;
 using System.Text;
 using Telegram.Bot;
@@ -9,9 +10,10 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using static LittleBitHelperExpenseTracker.Models.JsonOperations;
 
+
 namespace LittleBitHelperExpenseTrackerAppTelegramBot
 {
-    internal class Program
+    internal partial class Program
     {
         protected Program()
         { }
@@ -26,8 +28,8 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
             Console.WriteLine($"database path: {dbPath}.");
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             var sql = $"SELECT localUserId FROM users;";
-            var result = connection.Query<Users>(sql).ToList();
-            Users a = new();
+            var result = connection.Query<TelegramUsers>(sql).ToList();
+            TelegramUsers a = new();
             if (message != null)
             {
                 a.LocalUserId = message.Chat.Id;
@@ -130,7 +132,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                     Console.WriteLine($"database path: {dbPath}.");
                                     using var connection = new SQLiteConnection($"Data Source={dbPath}");
                                     var sql = $"SELECT localCurrency FROM users WHERE localUserId = {message.Chat.Id};";
-                                    var result = connection.Query<Users>(sql).ToList();
+                                    var result = connection.Query<TelegramUsers>(sql).ToList();
                                     string defaultCurrency = string.Empty;
                                     foreach (var item in result)
                                     {
@@ -166,7 +168,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                             Console.WriteLine($"database path: {dbPath}.");
                             using var connection = new SQLiteConnection($"Data Source={dbPath}");
                             var sql = $"SELECT localCurrency FROM users WHERE localUserId = {message.Chat.Id};";
-                            var result = connection.Query<Users>(sql).ToList();
+                            var result = connection.Query<TelegramUsers>(sql).ToList();
                             string defaultCurrency = string.Empty;
                             foreach (var item in result)
                             {
@@ -221,7 +223,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                             Console.WriteLine($"database path: {dbPath}.");
                             using var connection = new SQLiteConnection($"Data Source={dbPath}");
                             var sql = $"SELECT localCurrency FROM users WHERE localUserId = {message.Chat.Id};";
-                            var result = connection.Query<Users>(sql).ToList();
+                            var result = connection.Query<TelegramUsers>(sql).ToList();
                             string defaultCurrency = string.Empty;
                             foreach (var item in result)
                             {
@@ -370,7 +372,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                 Console.WriteLine($"database path: {dbPath}.");
                                 using var connection = new SQLiteConnection($"Data Source={dbPath}");
                                 var sql = $"SELECT localCurrency FROM users WHERE localUserId = {message.Chat.Id};";
-                                var result = connection.Query<Users>(sql).ToList();
+                                var result = connection.Query<TelegramUsers>(sql).ToList();
                                 string defaultCurrency = string.Empty;
                                 foreach (var item in result)
                                 {
@@ -442,6 +444,8 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
             return Task.CompletedTask;
         }
 
+        public static Settings? Default { get; set; }
+
         private static async Task Main()
         {
             if (botToken is null)
@@ -450,8 +454,25 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
             }
 
             ITelegramBotClient bot = new TelegramBotClient(botToken);
-
             await JsonCheckAndUpdate();
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("config.json", optional: false);
+            IConfiguration config = builder.Build();
+            Default = config.Get<Settings>();
+            if (Default != null)
+            {
+                if (Default.InitialConsoleOutputColor == "Red")
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                }
+                else if (Default.InitialConsoleOutputColor == "Green")
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                }
+
+                await Console.Out.WriteLineAsync(Default.InitialConsoleOutputColor);
+            }
 
             Console.WriteLine("Bot client for \"" + bot.GetMeAsync().Result.FirstName + "\" bot started");
             var cts = new CancellationTokenSource();

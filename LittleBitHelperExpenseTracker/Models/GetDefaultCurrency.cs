@@ -11,18 +11,12 @@ namespace LittleBitHelperExpenseTracker.Models
     {
 
         private readonly UserManager<IdentityUser> _userManager;
-        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
+        private static readonly string? dbPath = Program.Default?.ExchangeRateProviderAddress;
         public string CurrentUser { get; set; } = string.Empty;
         public string DefaultCurrency { get; set; } = string.Empty;
         public GetDefaultCurrency(UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
-        }
-
-        public class Users
-        {
-            public int LocalUserId { get; set; }
-            public required string LocalCurrency { get; set; }
         }
 
         public string GetDefaultLocalCurrecncy()

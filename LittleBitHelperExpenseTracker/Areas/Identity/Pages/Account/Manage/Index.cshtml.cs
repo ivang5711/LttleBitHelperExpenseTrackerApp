@@ -3,6 +3,7 @@
 #nullable disable
 
 using Dapper;
+using LittleBitHelperExpenseTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -69,13 +70,6 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
             {
                 PhoneNumber = phoneNumber
             };
-        }
-
-        public class Users
-        {
-            public string LocalUserName { get; set; }
-            public int LocalUserId { get; set; }
-            public required string LocalCurrency { get; set; }
         }
 
         public async Task<IActionResult> OnGetAsync()

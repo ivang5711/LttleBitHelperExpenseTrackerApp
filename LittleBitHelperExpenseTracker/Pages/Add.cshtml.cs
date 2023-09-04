@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using LittleBitHelperExpenseTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -27,31 +28,10 @@ namespace LittleBitHelperExpenseTracker.Pages
             phone = value;
         }
 
-        public class Users
-        {
-            public int LocalUserId { get; set; }
-            public required string LocalCurrency { get; set; }
-        }
-
         public AddModel(UserManager<IdentityUser> userManager, ILogger<IndexModel> logger)
         {
             _userManager = userManager;
             _logger = logger;
-        }
-
-        public class Expenses
-        {
-            public int Id { get; set; }
-            public string ExpenseType { get; set; } = string.Empty;
-            public float ExpenseAmount { get; set; }
-            public string ExpenseComment { get; set; } = string.Empty;
-            public DateTime DateTime { get; set; }
-            public int UserId { get; set; }
-            public string Currency { get; set; } = string.Empty;
-
-            public Expenses()
-            {
-            }
         }
 
         public static class UsersList
@@ -115,7 +95,6 @@ namespace LittleBitHelperExpenseTracker.Pages
             {
                 DefaultCurrency = "USD";
             }
-
         }
 
         public IActionResult OnPost()

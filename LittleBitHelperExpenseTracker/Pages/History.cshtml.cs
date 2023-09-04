@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Data.SQLite;
+using LittleBitHelperExpenseTracker.Models;
 
 namespace LittleBitHelperExpenseTracker.Pages
 {
@@ -18,21 +19,6 @@ namespace LittleBitHelperExpenseTracker.Pages
         {
             _userManager = userManager;
             _logger = logger;
-        }
-
-        public class Expenses
-        {
-            public int Id { get; set; }
-            public string ExpenseType { get; set; } = string.Empty;
-            public float ExpenseAmount { get; set; }
-            public string ExpenseComment { get; set; } = string.Empty;
-            public DateTime DateTime { get; set; }
-            public int UserId { get; set; }
-            public string Currency { get; set; } = string.Empty;
-
-            public Expenses()
-            {
-            }
         }
 
         public static class UsersList
