@@ -9,9 +9,6 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using static LittleBitHelperExpenseTracker.Models.JsonOperations;
-using LittleBitHelperExpenseTracker;
-using Microsoft.Extensions.Configuration.Json;
-using Microsoft.Extensions.Configuration;
 
 
 
@@ -452,6 +449,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
         private static async Task Main()
         {
+            Console.Title = "LittleBitHelperExpenseTrackerAppTelegramBot";
             if (botToken is null)
             {
                 throw new ArgumentException(nameof(botToken));
