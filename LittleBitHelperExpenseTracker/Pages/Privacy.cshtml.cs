@@ -16,8 +16,5 @@ namespace LittleBitHelperExpenseTracker.Pages
             _logger = logger;
         }
 
-        public void OnGet()
-        {
-        }
     }
 }

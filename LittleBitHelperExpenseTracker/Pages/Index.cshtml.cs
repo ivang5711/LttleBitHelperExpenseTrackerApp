@@ -115,13 +115,11 @@ namespace LittleBitHelperExpenseTracker.Pages
 
                 Thread.Sleep(1000);
                 Console.WriteLine($"database path: {dbPath}.");
-                using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
-                {
-                    var sql = "INSERT INTO users (localUserName, localUserId) VALUES (@LocalUserName, @LocalUserId);";
-                    Users newRecord = new Users() { LocalUserName = user.UserName, LocalUserId = tempTime, LocalCurrency = string.Empty };
-                    var rowsAffected = connection.Execute(sql, newRecord);
-                    Console.WriteLine($"{rowsAffected} row(s) inserted.");
-                }
+                using var connection = new SQLiteConnection($"Data Source={dbPath}");
+                var sql = "INSERT INTO users (localUserName, localUserId) VALUES (@LocalUserName, @LocalUserId);";
+                Users newRecord = new() { LocalUserName = user.UserName, LocalUserId = tempTime, LocalCurrency = string.Empty };
+                var rowsAffected = connection.Execute(sql, newRecord);
+                Console.WriteLine($"{rowsAffected} row(s) inserted.");
             }
         }
 
@@ -129,24 +127,6 @@ namespace LittleBitHelperExpenseTracker.Pages
         {
             public static List<Expenses> FinalList { get; set; } = new List<Expenses>();
             public static List<Expenses> NList { get; set; } = new List<Expenses>();
-        }
-
-        public class Expenses
-        {
-            public string Currency { get; set; } = string.Empty;
-            public DateTime DateTime { get; set; }
-            public float ExpenseAmount { get; set; }
-            public string ExpenseComment { get; set; } = string.Empty;
-            public string ExpenseType { get; set; } = string.Empty;
-            public int Id { get; set; }
-            public int UserId { get; set; }
-        }
-
-        public class Users
-        {
-            public string LocalCurrency { get; set; } = string.Empty;
-            public int LocalUserId { get; set; }
-            public string LocalUserName { get; set; } = string.Empty;
         }
     }
 }

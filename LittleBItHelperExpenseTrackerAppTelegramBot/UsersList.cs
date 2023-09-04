@@ -1,4 +1,6 @@
-﻿namespace LittleBitHelperExpenseTrackerAppTelegramBot
+﻿using LittleBitHelperExpenseTracker.Models;
+
+namespace LittleBitHelperExpenseTrackerAppTelegramBot
 {
     public static class UsersList
     {

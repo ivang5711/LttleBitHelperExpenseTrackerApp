@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using System.Data.SQLite;
+using LittleBitHelperExpenseTracker.Models;
 
 namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
 {
@@ -69,13 +70,6 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
             {
                 PhoneNumber = phoneNumber
             };
-        }
-
-        public class Users
-        {
-            public string LocalUserName { get; set; }
-            public int LocalUserId { get; set; }
-            public required string LocalCurrency { get; set; }
         }
 
         public async Task<IActionResult> OnGetAsync()

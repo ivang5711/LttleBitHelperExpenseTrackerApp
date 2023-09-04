@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using LittleBitHelperExpenseTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -15,21 +16,6 @@ namespace LittleBitHelperExpenseTracker.Pages
         public EditModel(ILogger<IndexModel> logger)
         {
             _logger = logger;
-        }
-
-        public class Expenses
-        {
-            public int Id { get; set; }
-            public string ExpenseType { get; set; } = string.Empty;
-            public float ExpenseAmount { get; set; }
-            public string ExpenseComment { get; set; } = string.Empty;
-            public DateTime DateTime { get; set; }
-            public int UserId { get; set; }
-            public string Currency { get; set; } = string.Empty;
-
-            public Expenses()
-            {
-            }
         }
 
         public static class UsersList
