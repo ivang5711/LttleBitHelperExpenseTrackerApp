@@ -20,6 +20,7 @@ namespace LittleBitHelperExpenseTracker
 
         public static async Task Main(string[] args)
         {
+            Console.Title = "LittleBitHelperExpenseTrackerApp";
             var builder = WebApplication.CreateBuilder(args);
             string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>

@@ -452,6 +452,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
         private static async Task Main()
         {
+            Console.Title = "LittleBitHelperExpenseTrackerAppTelegramBot";
             if (botToken is null)
             {
                 throw new ArgumentException(nameof(botToken));
