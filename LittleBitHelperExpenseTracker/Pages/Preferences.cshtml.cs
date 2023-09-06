@@ -28,25 +28,25 @@ namespace LittleBitHelperExpenseTracker.Pages
                 var user = await _userManager.GetUserAsync(User);
                 if (user is null || user.PhoneNumber is null)
                 {
+                    _logger.LogError("User is null. Time: {Time}", DateTime.UtcNow);
                     throw new ArgumentException(nameof(user));
                 }
 
                 CurrentUser = user.PhoneNumber;
-                await Console.Out.WriteLineAsync(" BANKG Current USER hERE!=" + CurrentUser);
             }
 
             _ = StarAsync();
             Thread.Sleep(100);
-            Console.WriteLine($"database path: {dbPath}.");
+            _logger.LogDebug("database path: {dbPath}", dbPath);
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(CurrentUser)};";
             var result = connection.Query<Users>(sql);
             Thread.Sleep(100);
             DefaultCurrency = "USD";
-            foreach (Users user in result)
+            foreach (Users item in result)
             {
-                Console.WriteLine("user cur= " + user.LocalCurrency);
                 DefaultCurrency = result.ToList()[0].LocalCurrency;
+                _logger.LogDebug("User {Username} currency = {LocalCurrency}. Time: {Time}", item.LocalUserName, item.LocalCurrency, DateTime.UtcNow);
             }
         }
 
@@ -60,24 +60,25 @@ namespace LittleBitHelperExpenseTracker.Pages
             IdentityUser? user = await _userManager.GetUserAsync(User);
             if (user is null || user.PhoneNumber is null)
             {
+                _logger.LogError("User is null. Time: {Time}", DateTime.UtcNow);
                 throw new ArgumentException(nameof(user));
             }
 
             CurrentUser = user.PhoneNumber;
-            await Console.Out.WriteLineAsync("CurrentUser: " + CurrentUser);
             string? localCurrency = Request.Form["currency"];
             if (localCurrency is null)
             {
+                _logger.LogError("localCurrency is null. Time: {Time}", DateTime.UtcNow);
                 throw new ArgumentException(nameof(localCurrency));
             }
 
-            Console.WriteLine($"database path: {dbPath}.");
+            _logger.LogDebug("database path: {dbPath}", dbPath);
             using (SQLiteConnection connection = new($"Data Source={dbPath}"))
             {
                 string sql = "Update users SET localCurrency = @LocalCurrency WHERE localUserId = @LocalUserId;";
                 Users newRecord = new() { LocalUserId = int.Parse(CurrentUser), LocalCurrency = localCurrency };
                 int rowsAffected = connection.Execute(sql, newRecord);
-                Console.WriteLine($"{rowsAffected} row(s) inserted.");
+                _logger.LogDebug("{rowsAffected} row(s) inserted.", rowsAffected);
             }
             DefaultCurrency = localCurrency;
         }

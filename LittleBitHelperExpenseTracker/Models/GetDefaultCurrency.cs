@@ -9,14 +9,15 @@ namespace LittleBitHelperExpenseTracker.Models
     [Authorize]
     public class GetDefaultCurrency : PageModel
     {
-
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ILogger<GetDefaultCurrency> _logger;
         private static readonly string? dbPath = Program.Default?.ExchangeRateProviderAddress;
         public string CurrentUser { get; set; } = string.Empty;
         public string DefaultCurrency { get; set; } = string.Empty;
-        public GetDefaultCurrency(UserManager<IdentityUser> userManager)
+        public GetDefaultCurrency(UserManager<IdentityUser> userManager, ILogger<GetDefaultCurrency> logger)
         {
             _userManager = userManager;
+            _logger = logger;
         }
 
         public string GetDefaultLocalCurrecncy()
@@ -27,6 +28,7 @@ namespace LittleBitHelperExpenseTracker.Models
 
                 if (user is null || user.PhoneNumber is null)
                 {
+                    _logger.LogError("User is null. Time: { Time}", DateTime.UtcNow);
                     throw new ArgumentException(nameof(user));
                 }
 

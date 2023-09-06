@@ -31,7 +31,7 @@ namespace LittleBitHelperExpenseTracker.Pages
         public IActionResult OnPostView(int id)
         {
             Message = $"View handler fired for {id}";
-            Console.WriteLine(Message);
+            _logger.LogDebug("OnPostView Message: {messageOnView}", Message);
             return new RedirectToPageResult("/Edit", $"{id}");
         }
 
@@ -40,11 +40,12 @@ namespace LittleBitHelperExpenseTracker.Pages
             var user = await _userManager.GetUserAsync(User);
             if (user is null || user.PhoneNumber is null)
             {
+                _logger.LogError("User is null. Time: {Time}", DateTime.UtcNow);
                 throw new ArgumentException(nameof(user));
             }
 
             var phoneNumber = user.PhoneNumber;
-            Console.WriteLine($"database path: {dbPath}.");
+            _logger.LogDebug("database path: {dbPath}", dbPath);
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             var sql = $"SELECT * FROM expenses WHERE userId={phoneNumber};";
             connection.Query<Expenses>(sql);
@@ -53,7 +54,6 @@ namespace LittleBitHelperExpenseTracker.Pages
 
         public IActionResult OnPost()
         {
-            Console.WriteLine("post");
             string? toDelete = Request.Form["toDelete"];
             string? toEdit = Request.Form["toEdit"];
             if (toEdit != null)
@@ -63,12 +63,12 @@ namespace LittleBitHelperExpenseTracker.Pages
             else if (toDelete != null)
             {
                 int del = int.Parse(toDelete);
-                Console.WriteLine($"database path: {dbPath}.");
+                _logger.LogDebug("database path: {dbPath}", dbPath);
                 using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
                 {
                     var sql = $"DELETE FROM expenses WHERE id={del}";
                     var rowsAffected = connection.Execute(sql);
-                    Console.WriteLine($"{rowsAffected} row(s) deleted.");
+                    _logger.LogDebug("{rowsAffected} row(s) inserted.", rowsAffected);
                 }
 
                 return new RedirectToPageResult("History");

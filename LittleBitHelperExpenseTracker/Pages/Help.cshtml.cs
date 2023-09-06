@@ -10,5 +10,10 @@ namespace LittleBitHelperExpenseTracker.Pages
         {
             _logger = logger;
         }
+
+        public void OnGet()
+        {
+            _logger.LogDebug("Help page loaded");
+        }
     }
 }

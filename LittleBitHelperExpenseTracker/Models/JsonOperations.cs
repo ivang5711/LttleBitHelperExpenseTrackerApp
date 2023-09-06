@@ -4,6 +4,15 @@ namespace LittleBitHelperExpenseTracker.Models
 {
     public static class JsonOperations
     {
+        private static readonly ILogger _logger = LoggerFactory.Create(builder =>
+        {
+            builder
+                .AddFilter("Microsoft", LogLevel.Warning)
+                .AddFilter("System", LogLevel.Warning)
+                .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)
+                .AddConsole();
+        }).CreateLogger<Program>();
+
         public static string JsonData { get; set; } = string.Empty;
         public static string? JsonPath { get; set; } = Environment.GetEnvironmentVariable("jsonPath");
 
@@ -31,6 +40,7 @@ namespace LittleBitHelperExpenseTracker.Models
         {
             if (JsonPath == null)
             {
+                _logger.LogError("JsonPath is null. Time: {Time}", DateTime.UtcNow);
                 throw new ArgumentException(nameof(JsonPath));
             }
 
@@ -43,7 +53,7 @@ namespace LittleBitHelperExpenseTracker.Models
             Person? person = JsonSerializer.Deserialize<Person>(JsonData, options);
             if (person is null)
             {
-                Console.WriteLine("JSON file can not be mapped");
+                _logger.LogError("JSON file can not be mapped");
                 return;
             }
 
@@ -52,12 +62,14 @@ namespace LittleBitHelperExpenseTracker.Models
             PersonPersistent.Timestamp = person.Timestamp;
             PersonPersistent.Base = person.Base;
             PersonPersistent.Rates = person.Rates;
+            _logger.LogInformation("Json file mapped successfully");
         }
 
         public static void CreateJson(string input)
         {
             if (JsonPath == null)
             {
+                _logger.LogError("JsonPath is null. Time: {Time}", DateTime.UtcNow);
                 throw new ArgumentException(nameof(JsonPath));
             }
 
@@ -69,13 +81,13 @@ namespace LittleBitHelperExpenseTracker.Models
             Person? person = JsonSerializer.Deserialize<Person>(input, options);
             if (person != null)
             {
-
+                _logger.LogError("person is null. Time: {Time}", DateTime.UtcNow);
                 File.WriteAllText(JsonPath, input);
-                Console.WriteLine("JSON file updated!!!");
+                _logger.LogInformation("JSON file updated");
             }
             else
             {
-                Console.WriteLine("Something went wrong with the json file creation...");
+                _logger.LogError("Json file creation failure");
             }
         }
 
@@ -83,7 +95,7 @@ namespace LittleBitHelperExpenseTracker.Models
         {
             if (File.Exists(JsonPath))
             {
-                Console.WriteLine("File exists!");
+                _logger.LogInformation("Json file exists");
                 JsonData = File.ReadAllText(JsonPath);
                 var options = new JsonSerializerOptions
                 {
@@ -98,17 +110,17 @@ namespace LittleBitHelperExpenseTracker.Models
                     dateTime = dateTime.AddSeconds(timeStampJson);
                     if (dateTime.Date == DateTime.UtcNow.Date)
                     {
-                        Console.WriteLine("Json is up to date!");
+                        _logger.LogInformation("Json file is up to date");
                         return true;
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Json is not up to date!");
+                    _logger.LogInformation("Json file is not up to date");
                 }
             }
 
-            Console.WriteLine("File does not exist");
+            _logger.LogInformation("Json file does not exist");
             return false;
         }
 
@@ -128,8 +140,7 @@ namespace LittleBitHelperExpenseTracker.Models
                 }
                 catch (HttpRequestException e)
                 {
-                    Console.WriteLine("\nException Caught!");
-                    Console.WriteLine("Message :{0} ", e.Message);
+                    _logger.LogDebug("Exception Caught! Message :{exception} ", e.Message);
                 }
             }
             else

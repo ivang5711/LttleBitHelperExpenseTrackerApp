@@ -22,6 +22,7 @@ namespace LittleBitHelperExpenseTracker.Pages
         public void OnGet()
         {
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            _logger.LogDebug("Error page loaded");
         }
     }
 }

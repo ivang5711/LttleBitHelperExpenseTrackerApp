@@ -30,25 +30,27 @@ namespace LittleBitHelperExpenseTracker.Pages
                 var user = await _userManager.GetUserAsync(User);
                 if (user is null || user.PhoneNumber is null)
                 {
+                    _logger.LogError("User is null. Time: {Time}", DateTime.UtcNow);
                     throw new ArgumentException(nameof(user));
                 }
 
                 CurrentUser = user.PhoneNumber;
-                await Console.Out.WriteLineAsync(" BANKG Current USER hERE!=" + CurrentUser);
             }
 
             _ = StarAsync();
             Thread.Sleep(100);
-            Console.WriteLine($"database path: {dbPath}.");
+            _logger.LogDebug("database path: {dbPath}", dbPath);
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(CurrentUser)};";
             var result = connection.Query<Users>(sql);
             Thread.Sleep(100);
             DefaultCurrency = "USD";
-            foreach (Users user in result)
+
+            foreach (Users item in result)
             {
-                Console.WriteLine("user cur= " + user.LocalCurrency);
                 DefaultCurrency = result.ToList()[0].LocalCurrency;
+                _logger.LogDebug("User {Username} currency = {LocalCurrency}. Time: {Time}", item.LocalUserName, item.LocalCurrency, DateTime.UtcNow);
+
             }
         }
 
@@ -59,7 +61,7 @@ namespace LittleBitHelperExpenseTracker.Pages
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                Console.WriteLine("User is null");
+                _logger.LogError("User is null. Time: {Time}", DateTime.UtcNow);
                 throw new ArgumentException(nameof(user));
             }
 
@@ -67,7 +69,7 @@ namespace LittleBitHelperExpenseTracker.Pages
             if (phoneNumber != null)
             {
                 GetDefaultCurrecncy();
-                Console.WriteLine($"database path: {dbPath}.");
+                _logger.LogDebug("database path: {dbPath}", dbPath);
                 using var connection = new SQLiteConnection($"Data Source={dbPath}");
                 var sql = $"SELECT expenseType, SUM(expenseAmount) AS expenseAmount, currency FROM expenses WHERE userId={phoneNumber} GROUP BY expenseType, currency;";
                 connection.Query<Expenses>(sql);
@@ -110,16 +112,17 @@ namespace LittleBitHelperExpenseTracker.Pages
 
                 if (user.UserName is null || user.UserName.Length == 0)
                 {
+                    _logger.LogError("User.Username is null. Time: {Time}", DateTime.UtcNow);
                     throw new ArgumentException(nameof(user.UserName));
                 }
 
                 Thread.Sleep(1000);
-                Console.WriteLine($"database path: {dbPath}.");
+                _logger.LogDebug("database path: {dbPath}", dbPath);
                 using var connection = new SQLiteConnection($"Data Source={dbPath}");
                 var sql = "INSERT INTO users (localUserName, localUserId) VALUES (@LocalUserName, @LocalUserId);";
                 Users newRecord = new() { LocalUserName = user.UserName, LocalUserId = tempTime, LocalCurrency = string.Empty };
                 var rowsAffected = connection.Execute(sql, newRecord);
-                Console.WriteLine($"{rowsAffected} row(s) inserted.");
+                _logger.LogDebug("{rowsAffected} row(s) inserted.", rowsAffected);
             }
         }
 

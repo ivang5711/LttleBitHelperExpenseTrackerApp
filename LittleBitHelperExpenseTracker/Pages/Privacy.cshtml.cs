@@ -15,5 +15,10 @@ namespace LittleBitHelperExpenseTracker.Pages
         {
             _logger = logger;
         }
+
+        public void OnGet()
+        {
+            _logger.LogDebug("Privacy page loaded");
+        }
     }
 }
