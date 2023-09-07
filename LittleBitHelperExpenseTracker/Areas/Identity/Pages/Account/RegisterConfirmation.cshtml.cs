@@ -42,13 +42,6 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account
         /// </summary>
         public string EmailConfirmationUrl { get; set; }
 
-        public class Users
-        {
-            public string LocalUserName { get; set; }
-            public int LocalUserId { get; set; }
-            public required string LocalCurrency { get; set; }
-        }
-
         public async Task<IActionResult> OnGetAsync(string email, string returnUrl = null)
         {
             if (email == null)

@@ -27,6 +27,11 @@
             int counter = 0;
             foreach (var s in HistoryModel.UsersList.NList)
             {
+                if (s.ExpenseType is null)
+                {
+                    throw new ArgumentException(nameof(s.ExpenseType));
+                }
+
                 counter++;
                 <tr>
                     <td>@counter</td>
@@ -38,8 +43,8 @@
                     <td>@s.UserId</td>
                     <td>@s.Currency</td>
                     <td>
-                        <form asp-page="Edit" asp-page-handler="Test" method="post">
-                            <input name="TestString" value="@s.Id" style="visibility: hidden" />
+                        <form asp-page="Edit" asp-page-handler="Edit" method="post">
+                            <input name="idToEdit" value="@s.Id" style="visibility: hidden" />
                             <input type="submit" value="Edit" />
                         </form>
                     </td>

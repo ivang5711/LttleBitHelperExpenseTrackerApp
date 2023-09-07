@@ -60,6 +60,8 @@ namespace LittleBitHelperExpenseTracker
             }
 
             await JsonCheckAndUpdate();
+            app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
+            app.UseExceptionHandler("/Error");
             app.Run();
         }
     }

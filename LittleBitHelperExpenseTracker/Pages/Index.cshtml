@@ -6,9 +6,6 @@
 
 @{
     var user = await UserManager.GetUserAsync(User);
-    // var userName = user.UserName;
-    // var phoneNumber = user.PhoneNumber;
-    // var tmp = new IndexModel(UserManager);
 }
 
 @{
@@ -25,6 +22,11 @@
             var yValues = [];
             @foreach (var item in IndexModel.UsersList.FinalList)
             {
+                if (item.ExpenseType is null)
+                {
+                    throw new ArgumentException(nameof(item));
+                }
+
                 tmpList.Add(item.ExpenseType);
                 tmpIntList.Add(item.ExpenseAmount);
                 var k1 = item.ExpenseType;
@@ -74,6 +76,11 @@
                 int counter = 0;
                 foreach (var s in IndexModel.UsersList.FinalList)
                 {
+                    if(s.ExpenseType is null)
+                    {
+                        throw new ArgumentException(nameof(s.ExpenseType));
+                    }
+
                     counter++;
                     <tr>
                         <td>@counter</td>

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.IdentityModel.Tokens;
 using System.Data.SQLite;
 
 namespace LittleBitHelperExpenseTracker.Pages
@@ -15,18 +14,10 @@ namespace LittleBitHelperExpenseTracker.Pages
         private readonly ILogger<IndexModel> _logger;
         private readonly UserManager<IdentityUser> _userManager;
         private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
-        private int phone;
-        public static string DefaultCurrency { get; set; } = string.Empty;
-        public string CurrentUser { get; set; } = string.Empty;
-        public int GetPhone()
-        {
-            return phone;
-        }
 
-        public void SetPhone(int value)
-        {
-            phone = value;
-        }
+        public static string DefaultCurrency { get; set; } = string.Empty;
+        public static IdentityUser? CurrentUser { get; set; }
+        public int CurrentUserTelegramId { get; set; }
 
         public AddModel(UserManager<IdentityUser> userManager, ILogger<IndexModel> logger)
         {
@@ -34,42 +25,7 @@ namespace LittleBitHelperExpenseTracker.Pages
             _logger = logger;
         }
 
-        public static class UsersList
-        {
-            public static List<Expenses> NList { get; set; } = new List<Expenses>();
-        }
-
-
-        public void GetDefaultCurrecncy()
-        {
-            async Task StarAsync()
-            {
-                var user = await _userManager.GetUserAsync(User);
-                if (user is null || user.PhoneNumber is null)
-                {
-                    _logger.LogError("User is null. Time: {Time}", DateTime.UtcNow);
-                    throw new ArgumentException(nameof(user));
-                }
-
-                CurrentUser = user.PhoneNumber;
-            }
-
-            _ = StarAsync();
-            Thread.Sleep(100);
-            _logger.LogDebug("database path: {dbPath}", dbPath);
-            using var connection = new SQLiteConnection($"Data Source={dbPath}");
-            var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(CurrentUser)};";
-            var result = connection.Query<Users>(sql);
-            Thread.Sleep(100);
-            DefaultCurrency = "USD";
-            foreach (Users item in result)
-            {
-                DefaultCurrency = result.ToList()[0].LocalCurrency;
-                _logger.LogDebug("User {Username} currency = {LocalCurrency}. Time: {Time}", item.LocalUserName, item.LocalCurrency, DateTime.UtcNow);
-            }
-        }
-
-        public async Task OnGetAsync()
+        public async Task SetCurrentUser()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user is null || user.PhoneNumber is null)
@@ -78,89 +34,47 @@ namespace LittleBitHelperExpenseTracker.Pages
                 throw new ArgumentException(nameof(user));
             }
 
-            GetDefaultCurrecncy();
-            SetPhone(int.Parse(user.PhoneNumber));
-            CurrentUser = user.PhoneNumber;
-            Thread.Sleep(100);
-            _logger.LogDebug("database path: {dbPath}", dbPath);
-            using var connection = new SQLiteConnection($"Data Source={dbPath}");
-            var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(CurrentUser)};";
-            var result = connection.Query<Users>(sql);
-            if (result.Any())
-            {
-                DefaultCurrency = result.ToList()[0].LocalCurrency;
-            }
-            else
-            {
-                DefaultCurrency = "USD";
-            }
+            var defaultCurrencyGetter = new GetDefaultCurrency();
+            DefaultCurrency = defaultCurrencyGetter.GetDefaultCurrecncy(user);
+            CurrentUserTelegramId = int.Parse(user.PhoneNumber);
         }
 
-        public IActionResult OnPost()
+        public async Task OnGetAsync()
         {
-            async Task StarAsync()
-            {
-                var user = await _userManager.GetUserAsync(User);
-                if (user is null || user.PhoneNumber is null || user.UserName is null)
-                {
-                    _logger.LogError("User is null. Time: {Time}", DateTime.UtcNow);
-                    throw new ArgumentException(nameof(user));
-                }
+            await SetCurrentUser();
+        }
 
-                GetDefaultCurrecncy();
-                SetPhone(int.Parse(user.PhoneNumber));
-                CurrentUser = user.UserName;
-            }
-
-            _ = StarAsync();
-            Thread.Sleep(100);
-            if (Request.Form["expenseType"].IsNullOrEmpty() ||
-                Request.Form["expenseAmount"].IsNullOrEmpty() ||
-                Request.Form["dateTime"].IsNullOrEmpty() ||
-                    Request.Form is null)
-            {
-                _logger.LogError("Request.Form is null. Time: {Time}", DateTime.UtcNow);
-                throw new ArgumentException(nameof(Request));
-            }
-
+        public async Task<IActionResult> OnPostAsync()
+        {
+            await SetCurrentUser();
             string? expenseType = Request.Form["expenseType"];
             string? expenseAmount = Request.Form["expenseAmount"];
             string? expenseComment = Request.Form["expenseComment"];
             string? dateTime = Request.Form["dateTime"];
-            if (dateTime is null)
+            if (string.IsNullOrEmpty(dateTime))
             {
                 _logger.LogError("dateTime is null. Time: {Time}", DateTime.UtcNow);
                 throw new ArgumentException(nameof(dateTime));
             }
 
-            if (expenseComment is null)
+            if (string.IsNullOrEmpty(expenseComment))
             {
                 _logger.LogError("expenseComment is null. Time: {Time}", DateTime.UtcNow);
-                throw new ArgumentException(nameof(expenseComment));
+                expenseComment = string.Empty;
             }
 
-            if (expenseAmount is null)
+            if (string.IsNullOrEmpty(expenseAmount))
             {
                 _logger.LogError("expenseAmmount is null. Time: {Time}", DateTime.UtcNow);
                 throw new ArgumentException(nameof(expenseAmount));
             }
 
-            if (expenseType is null)
+            if (string.IsNullOrEmpty(expenseType))
             {
                 _logger.LogError("ExpenseType is null. Time: {Time}", DateTime.UtcNow);
                 throw new ArgumentException(nameof(expenseType));
             }
 
-            Thread.Sleep(100);
-            var user = _userManager.GetUserAsync(User).Result;
-            if (user is null || user.PhoneNumber is null)
-            {
-                _logger.LogError("User is null. Time: {Time}", DateTime.UtcNow);
-                throw new ArgumentException(nameof(user));
-            }
-
-            SetPhone(int.Parse(user.PhoneNumber));
-            int userId = GetPhone();
             string? currency = Request.Form["currency"];
             if (currency == null || Request.Form is null)
             {
@@ -172,7 +86,7 @@ namespace LittleBitHelperExpenseTracker.Pages
             using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
             {
                 var sql = "INSERT INTO expenses (expenseType, expenseAmount, expenseComment, dateTime, userId, currency) VALUES (@ExpenseType, @ExpenseAmount, @ExpenseComment, @DateTime, @UserId, @Currency)";
-                var newRecord = new Expenses() { ExpenseType = expenseType, ExpenseAmount = float.Parse(expenseAmount), ExpenseComment = expenseComment, DateTime = Convert.ToDateTime(dateTime), UserId = userId, Currency = currency };
+                var newRecord = new Expenses() { ExpenseType = expenseType, ExpenseAmount = float.Parse(expenseAmount), ExpenseComment = expenseComment, DateTime = Convert.ToDateTime(dateTime), UserId = CurrentUserTelegramId, Currency = currency };
                 var rowsAffected = connection.Execute(sql, newRecord);
                 _logger.LogDebug("{rowsAffected} row(s) inserted.", rowsAffected);
             }

@@ -23,37 +23,6 @@ namespace LittleBitHelperExpenseTracker.Pages
         public static string DefaultCurrency { get; set; } = string.Empty;
         public string CurrentUser { get; set; } = string.Empty;
 
-        public void GetDefaultCurrecncy()
-        {
-            async Task StarAsync()
-            {
-                var user = await _userManager.GetUserAsync(User);
-                if (user is null || user.PhoneNumber is null)
-                {
-                    _logger.LogError("User is null. Time: {Time}", DateTime.UtcNow);
-                    throw new ArgumentException(nameof(user));
-                }
-
-                CurrentUser = user.PhoneNumber;
-            }
-
-            _ = StarAsync();
-            Thread.Sleep(100);
-            _logger.LogDebug("database path: {dbPath}", dbPath);
-            using var connection = new SQLiteConnection($"Data Source={dbPath}");
-            var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(CurrentUser)};";
-            var result = connection.Query<Users>(sql);
-            Thread.Sleep(100);
-            DefaultCurrency = "USD";
-
-            foreach (Users item in result)
-            {
-                DefaultCurrency = result.ToList()[0].LocalCurrency;
-                _logger.LogDebug("User {Username} currency = {LocalCurrency}. Time: {Time}", item.LocalUserName, item.LocalCurrency, DateTime.UtcNow);
-
-            }
-        }
-
         public async Task OnGetAsync()
         {
             UsersList.NList.Clear();
@@ -68,7 +37,8 @@ namespace LittleBitHelperExpenseTracker.Pages
             var phoneNumber = user.PhoneNumber;
             if (phoneNumber != null)
             {
-                GetDefaultCurrecncy();
+                var defaultCurrencyGetter = new GetDefaultCurrency();
+                DefaultCurrency = defaultCurrencyGetter.GetDefaultCurrecncy(user);
                 _logger.LogDebug("database path: {dbPath}", dbPath);
                 using var connection = new SQLiteConnection($"Data Source={dbPath}");
                 var sql = $"SELECT expenseType, SUM(expenseAmount) AS expenseAmount, currency FROM expenses WHERE userId={phoneNumber} GROUP BY expenseType, currency;";
@@ -78,6 +48,10 @@ namespace LittleBitHelperExpenseTracker.Pages
                 {
                     foreach (var item in UsersList.NList)
                     {
+                        if (item.Currency is null)
+                        {
+                            throw new ArgumentException(nameof(item));
+                        }
                         item.ExpenseAmount /= JsonOperations.PersonPersistent.Rates[item.Currency];
                     }
 
@@ -87,7 +61,7 @@ namespace LittleBitHelperExpenseTracker.Pages
                     {
                         if (UsersList.NList[i].ExpenseType == UsersList.NList[i - 1].ExpenseType)
                         {
-                            UsersList.FinalList[i - 1].ExpenseAmount += UsersList.NList[i].ExpenseAmount;
+                            UsersList.FinalList[^1].ExpenseAmount += UsersList.NList[i].ExpenseAmount;
                         }
                         else
                         {
@@ -95,7 +69,6 @@ namespace LittleBitHelperExpenseTracker.Pages
                         }
                     }
 
-                    GetDefaultCurrecncy();
                     foreach (var item in UsersList.FinalList)
                     {
                         item.ExpenseAmount *= JsonOperations.PersonPersistent.Rates[DefaultCurrency];
@@ -116,13 +89,14 @@ namespace LittleBitHelperExpenseTracker.Pages
                     throw new ArgumentException(nameof(user.UserName));
                 }
 
-                Thread.Sleep(1000);
                 _logger.LogDebug("database path: {dbPath}", dbPath);
                 using var connection = new SQLiteConnection($"Data Source={dbPath}");
                 var sql = "INSERT INTO users (localUserName, localUserId) VALUES (@LocalUserName, @LocalUserId);";
                 Users newRecord = new() { LocalUserName = user.UserName, LocalUserId = tempTime, LocalCurrency = string.Empty };
                 var rowsAffected = connection.Execute(sql, newRecord);
                 _logger.LogDebug("{rowsAffected} row(s) inserted.", rowsAffected);
+                var defaultCurrencyGetter = new GetDefaultCurrency();
+                DefaultCurrency = defaultCurrencyGetter.GetDefaultCurrecncy(user);
             }
         }
 

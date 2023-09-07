@@ -15,6 +15,9 @@ namespace LittleBitHelperExpenseTracker.Pages
         private readonly UserManager<IdentityUser> _userManager;
         private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
 
+        public string? DefaultCurrency { get; set; }
+        public int CurrentUserTelegramId { get; set; }
+
         public HistoryModel(UserManager<IdentityUser> userManager, ILogger<IndexModel> logger)
         {
             _userManager = userManager;
@@ -26,16 +29,7 @@ namespace LittleBitHelperExpenseTracker.Pages
             public static List<Expenses> NList { get; set; } = new List<Expenses>();
         }
 
-        public string Message { get; set; } = "Initial Request";
-
-        public IActionResult OnPostView(int id)
-        {
-            Message = $"View handler fired for {id}";
-            _logger.LogDebug("OnPostView Message: {messageOnView}", Message);
-            return new RedirectToPageResult("/Edit", $"{id}");
-        }
-
-        public async Task OnGetAsync()
+        public async Task SetCurrentUser()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user is null || user.PhoneNumber is null)
@@ -44,10 +38,17 @@ namespace LittleBitHelperExpenseTracker.Pages
                 throw new ArgumentException(nameof(user));
             }
 
-            var phoneNumber = user.PhoneNumber;
+            var defaultCurrencyGetter = new GetDefaultCurrency();
+            DefaultCurrency = defaultCurrencyGetter.GetDefaultCurrecncy(user);
+            CurrentUserTelegramId = int.Parse(user.PhoneNumber);
+        }
+
+        public async Task OnGetAsync()
+        {
+            await SetCurrentUser();
             _logger.LogDebug("database path: {dbPath}", dbPath);
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
-            var sql = $"SELECT * FROM expenses WHERE userId={phoneNumber};";
+            var sql = $"SELECT * FROM expenses WHERE userId={CurrentUserTelegramId};";
             connection.Query<Expenses>(sql);
             UsersList.NList = connection.Query<Expenses>(sql).ToList();
         }

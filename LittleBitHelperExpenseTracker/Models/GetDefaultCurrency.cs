@@ -1,48 +1,33 @@
-﻿using Dapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Identity;
 using System.Data.SQLite;
+using Dapper;
 
 namespace LittleBitHelperExpenseTracker.Models
 {
-    [Authorize]
-    public class GetDefaultCurrency : PageModel
+    public class GetDefaultCurrency
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly ILogger<GetDefaultCurrency> _logger;
-        private static readonly string? dbPath = Program.Default?.ExchangeRateProviderAddress;
-        public string CurrentUser { get; set; } = string.Empty;
-        public string DefaultCurrency { get; set; } = string.Empty;
-        public GetDefaultCurrency(UserManager<IdentityUser> userManager, ILogger<GetDefaultCurrency> logger)
+        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
+        public string GetDefaultCurrecncy(IdentityUser user)
         {
-            _userManager = userManager;
-            _logger = logger;
-        }
 
-        public string GetDefaultLocalCurrecncy()
-        {
-            async Task StarAsync()
-            {
-                var user = await _userManager.GetUserAsync(User);
-
-                if (user is null || user.PhoneNumber is null)
-                {
-                    _logger.LogError("User is null. Time: { Time}", DateTime.UtcNow);
-                    throw new ArgumentException(nameof(user));
-                }
-
-                CurrentUser = user.PhoneNumber;
-            }
-
-            _ = StarAsync();
             Thread.Sleep(100);
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
-            var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(CurrentUser)};";
+            if (user.PhoneNumber == null)
+            {
+                throw new ArgumentException(null, nameof(user));
+            }
+
+            var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(user.PhoneNumber)};";
             var result = connection.Query<Users>(sql);
-            DefaultCurrency = result.ToList()[0].LocalCurrency;
-            return DefaultCurrency;
+            Thread.Sleep(100);
+            string defaultCurrency = "USD";
+
+            foreach (Users item in result)
+            {
+                defaultCurrency = result.ToList()[0].LocalCurrency;
+            }
+
+            return defaultCurrency;
         }
     }
-
-}
+}   

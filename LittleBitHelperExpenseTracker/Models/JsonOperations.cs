@@ -38,6 +38,7 @@ namespace LittleBitHelperExpenseTracker.Models
 
         public static void MapJson()
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             if (JsonPath == null)
             {
                 _logger.LogError("JsonPath is null. Time: {Time}", DateTime.UtcNow);
@@ -54,6 +55,8 @@ namespace LittleBitHelperExpenseTracker.Models
             if (person is null)
             {
                 _logger.LogError("JSON file can not be mapped");
+                watch.Stop();
+                _logger.LogDebug("Map Json total execution time is {time} milliseconds", watch.ElapsedMilliseconds);
                 return;
             }
 
@@ -63,10 +66,13 @@ namespace LittleBitHelperExpenseTracker.Models
             PersonPersistent.Base = person.Base;
             PersonPersistent.Rates = person.Rates;
             _logger.LogInformation("Json file mapped successfully");
+            watch.Stop();
+            _logger.LogDebug("Map Json total execution time is {time} milliseconds", watch.ElapsedMilliseconds);
         }
 
         public static void CreateJson(string input)
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             if (JsonPath == null)
             {
                 _logger.LogError("JsonPath is null. Time: {Time}", DateTime.UtcNow);
@@ -81,7 +87,6 @@ namespace LittleBitHelperExpenseTracker.Models
             Person? person = JsonSerializer.Deserialize<Person>(input, options);
             if (person != null)
             {
-                _logger.LogError("person is null. Time: {Time}", DateTime.UtcNow);
                 File.WriteAllText(JsonPath, input);
                 _logger.LogInformation("JSON file updated");
             }
@@ -89,10 +94,15 @@ namespace LittleBitHelperExpenseTracker.Models
             {
                 _logger.LogError("Json file creation failure");
             }
+
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            _logger.LogDebug("Create Json total execution time is {time} milliseconds", elapsedMs);
         }
 
         public static bool CheckJson()
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             if (File.Exists(JsonPath))
             {
                 _logger.LogInformation("Json file exists");
@@ -111,16 +121,23 @@ namespace LittleBitHelperExpenseTracker.Models
                     if (dateTime.Date == DateTime.UtcNow.Date)
                     {
                         _logger.LogInformation("Json file is up to date");
+                        watch.Stop();
+                        _logger.LogDebug("Check Json total execution time is {time} milliseconds", watch.ElapsedMilliseconds);
                         return true;
                     }
                 }
                 else
                 {
                     _logger.LogInformation("Json file is not up to date");
+                    watch.Stop();
+                    _logger.LogDebug("Check Json total execution time is {time} milliseconds", watch.ElapsedMilliseconds);
+                    return false;
                 }
             }
 
             _logger.LogInformation("Json file does not exist");
+            watch.Stop();
+            _logger.LogDebug("Check Json total execution time is {time} milliseconds", watch.ElapsedMilliseconds);
             return false;
         }
 

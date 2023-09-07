@@ -25,8 +25,14 @@ namespace LittleBitHelperExpenseTracker.Pages
 
         public IActionResult OnPost()
         {
-            int currentId = UsersList.NList[0].Id;
+            string? toUpdate = Request.Form["toUpdate"];
+            string? toCancell = Request.Form["toCancel"];
+            if (toUpdate is null && toCancell is not null)
+            {
+                return new RedirectToPageResult("History");
+            }
 
+            int currentId = UsersList.NList[0].Id;
             string? expenseType = Request.Form["expenseType"];
             string? expenseAmount = Request.Form["expenseAmount"];
             string? expenseComment = Request.Form["expenseComment"];
@@ -75,9 +81,9 @@ namespace LittleBitHelperExpenseTracker.Pages
             return new RedirectToPageResult("History");
         }
 
-        public void OnPostTest(string TestString)
+        public void OnPostEdit(string idToEdit)
         {
-            int getId = int.Parse(TestString);
+            int getId = int.Parse(idToEdit);
             _logger.LogDebug("database path: {dbPath}", dbPath);
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             var sql = $"SELECT * FROM expenses WHERE id={getId};";

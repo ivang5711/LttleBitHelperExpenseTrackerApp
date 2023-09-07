@@ -24,18 +24,17 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
         private static async Task Main()
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             using var loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder
                     .AddFilter("Microsoft", LogLevel.Warning)
                     .AddFilter("System", LogLevel.Warning)
-                    .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)
-                    .AddConsole();
+                    .AddFilter("NonHostConsoleApp.Program", LogLevel.Debug)
+                    .AddConsole()
+                    .SetMinimumLevel(LogLevel.Information);
             });
-
             ILogger logger = loggerFactory.CreateLogger<Program>();
-
-
             Console.Title = "LittleBitHelperExpenseTrackerAppTelegramBot";
             if (botToken is null)
             {
@@ -43,12 +42,13 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                 throw new ArgumentException(nameof(botToken));
             }
 
+            var Task1 = JsonCheckAndUpdate();
             ITelegramBotClient bot = new TelegramBotClient(botToken);
-            await JsonCheckAndUpdate();
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("config.json", optional: false);
             IConfiguration config = builder.Build();
+
             Default = config.Get<Settings>();
             if (Default != null)
             {
@@ -61,19 +61,20 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
 
-                await Console.Out.WriteLineAsync(Default.InitialConsoleOutputColor);
+                Console.WriteLine(Default.InitialConsoleOutputColor);
             }
             else
             {
                 logger.LogError("config.json settings can not be read. Time: {Time}", bot.GetMeAsync().Result.FirstName);
             }
 
+            await Task1;
             logger.LogInformation("Bot client for {BotName} bot started. Time: {Time}", bot.GetMeAsync().Result.FirstName, DateTime.UtcNow);
             var cts = new CancellationTokenSource();
             var cancellationToken = cts.Token;
             var receiverOptions = new ReceiverOptions
             {
-                AllowedUpdates = { }, // receive all update types
+                AllowedUpdates = { },
             };
             bot.StartReceiving(
                 HandleUpdateAsync,
@@ -81,6 +82,8 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                 receiverOptions,
                 cancellationToken
             );
+            watch.Stop();
+            logger.LogInformation("Total execution time is {time} milliseconds", watch.ElapsedMilliseconds);
             Console.ReadLine();
         }
         public static async Task<bool> CheckUser(ITelegramBotClient botClient, Message? message)
@@ -244,7 +247,11 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                             {
                                 foreach (var item in UsersList.NList)
                                 {
-                                    item.ExpenseAmount /= JsonOperations.PersonPersistent.Rates[item.Currency];
+                                    if (item.Currency is null)
+                                    {
+                                        throw new ArgumentException(nameof(item));
+                                    }
+                                    item.ExpenseAmount /= PersonPersistent.Rates[item.Currency];
                                 }
 
                                 UsersList.FinalList.Clear();
@@ -299,7 +306,12 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                             {
                                 foreach (var item in UsersList.NList)
                                 {
-                                    item.ExpenseAmount /= JsonOperations.PersonPersistent.Rates[item.Currency];
+                                    if (item.Currency is null)
+                                    {
+                                        throw new ArgumentException(nameof(item.Currency));
+                                    }
+
+                                    item.ExpenseAmount /= PersonPersistent.Rates[item.Currency];
                                 }
 
                                 UsersList.FinalList.Clear();
