@@ -52,7 +52,7 @@ namespace LittleBitHelperExpenseTracker.Pages
                         {
                             throw new ArgumentException(nameof(item));
                         }
-                        item.ExpenseAmount /= JsonOperations.PersonPersistent.Rates[item.Currency];
+                        item.ExpenseAmount /= JsonOperations.ExchangeRatePersistent.Rates[item.Currency];
                     }
 
                     UsersList.FinalList.Clear();
@@ -71,7 +71,7 @@ namespace LittleBitHelperExpenseTracker.Pages
 
                     foreach (var item in UsersList.FinalList)
                     {
-                        item.ExpenseAmount *= JsonOperations.PersonPersistent.Rates[DefaultCurrency];
+                        item.ExpenseAmount *= JsonOperations.ExchangeRatePersistent.Rates[DefaultCurrency];
                     }
                 }
             }

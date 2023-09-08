@@ -50,13 +50,6 @@ namespace LittleBitHelperExpenseTracker.Pages
             string? expenseType = Request.Form["expenseType"];
             string? expenseAmount = Request.Form["expenseAmount"];
             string? expenseComment = Request.Form["expenseComment"];
-            string? dateTime = Request.Form["dateTime"];
-            if (string.IsNullOrEmpty(dateTime))
-            {
-                _logger.LogError("dateTime is null. Time: {Time}", DateTime.UtcNow);
-                throw new ArgumentException(nameof(dateTime));
-            }
-
             if (string.IsNullOrEmpty(expenseComment))
             {
                 _logger.LogError("expenseComment is null. Time: {Time}", DateTime.UtcNow);
@@ -86,7 +79,7 @@ namespace LittleBitHelperExpenseTracker.Pages
             using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
             {
                 var sql = "INSERT INTO expenses (expenseType, expenseAmount, expenseComment, dateTime, userId, currency) VALUES (@ExpenseType, @ExpenseAmount, @ExpenseComment, @DateTime, @UserId, @Currency)";
-                var newRecord = new Expenses() { ExpenseType = expenseType, ExpenseAmount = float.Parse(expenseAmount), ExpenseComment = expenseComment, DateTime = Convert.ToDateTime(dateTime), UserId = CurrentUserTelegramId, Currency = currency };
+                var newRecord = new Expenses() { ExpenseType = expenseType, ExpenseAmount = float.Parse(expenseAmount), ExpenseComment = expenseComment, DateTime = DateTime.UtcNow, UserId = CurrentUserTelegramId, Currency = currency };
                 var rowsAffected = connection.Execute(sql, newRecord);
                 _logger.LogDebug("{rowsAffected} row(s) inserted.", rowsAffected);
             }

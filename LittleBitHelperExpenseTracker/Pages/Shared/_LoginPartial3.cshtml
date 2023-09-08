@@ -2,21 +2,17 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
-<ul class="navbar-nav">
+<ul class="navbar-nav imported_value">
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-page="/Add">Add</a>
+            <a class="nav-link text-dark header-link" asp-area="" asp-page="/Add">Add</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-page="/History">History</a>
+            <a class="nav-link text-dark header-link" asp-area="" asp-page="/History">History</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-page="/Preferences">Preferences</a>
+            <a class="nav-link text-dark header-link" asp-area="" asp-page="/Preferences">Preferences</a>
     </li>
-}
-else
-{
-        
 }
 </ul>

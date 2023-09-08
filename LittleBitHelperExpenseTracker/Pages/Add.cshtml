@@ -8,25 +8,34 @@
 }
 
 <h4 style="margin: 20px; display: flex; justify-content: center">Add new record</h4>
-<div style="margin: 20px; display: flex; justify-content: center">
+<form method="post" class="add">
+    <div class="mb-3">
+        <input type="text" name="expenseType" placeholder=" Expense Type..." autocomplete="off" autofocus class="input" required id="symbol">
+    </div>
+    <div class="mb-3">
+        <input name="expenseAmount" placeholder=" Expense Amount..." autocomplete="off" class="input" id="shares" required type="number">
+    </div>
+    <div>
+        <div class="float_right">
+            <label for="currency"><span class="regular">Currency:</span></label>
+            <select name="currency" id="currency" class="dropdown">
+                <option value="@AddModel.DefaultCurrency">@AddModel.DefaultCurrency</option>
+                @foreach (var item in JsonOperations.ExchangeRatePersistent.Rates.Keys)
+                {
+                    <option value="@item">@item</option>
+                }
 
-    <form method="post">
-        <input type="text" name="expenseType" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Expense Type...">
-        <input type="text" name="expenseAmount" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Expense Amount...">
-        <input type="text" name="expenseComment" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Expense Comment...">
-        <input type="datetime-local" name="dateTime" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Date and Time...">
-        <select id="currency" name="currency" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Currency...">
-            <option value="@AddModel.DefaultCurrency">@AddModel.DefaultCurrency</option>
-            @foreach (var item in JsonOperations.PersonPersistent.Rates.Keys)
-            {
-                <option value="@item">@item</option>
-            }
-        </select>
+            </select>
+        </div>
+    </div>
+    <br>
+    <div class="mb-3">
+        <br>
+        <input type="text" name="expenseComment" placeholder=" Expense Comment..." autocomplete="off" class="input" id="comment">
+    </div>
+    <button class="button" type="submit">Submit</button>
+</form>
 
-        <input type="submit" style="display: block; padding: 12px 20px; margin: 8px 0">
-    </form>
-
-</div>
 
 @section Scripts {
     @{

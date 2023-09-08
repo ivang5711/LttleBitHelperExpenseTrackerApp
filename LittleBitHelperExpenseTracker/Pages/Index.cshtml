@@ -37,7 +37,7 @@
                 </text>
             }
 
-                        var barColors = [
+                                                var barColors = [
                 "#b91d47",
                 "#00aba9",
                 "#235790",
@@ -64,33 +64,31 @@
             });
         </script>
     </div>
+
     <p style="text-align: center">All expenses shown in your default currency: @IndexModel.DefaultCurrency</p>
-    <div class="text-center" style="margin: 20px; display: flex; justify-content: center;">
-        <table class="table" style="max-inline-size: 800px;">
-            <tr>
-                <th>#</th>
-                <th>Expense type</th>
-                <th>Expense amount</th>
-            </tr>
-            @{
-                int counter = 0;
-                foreach (var s in IndexModel.UsersList.FinalList)
+    <table class="table">
+        <tr class="table_header">
+            <th>#</th>
+            <th>Expense type</th>
+            <th>Expense amount</th>
+        </tr>
+        @{
+            int counter = 0;
+            foreach (var s in IndexModel.UsersList.FinalList)
+            {
+                if (s.ExpenseType is null)
                 {
-                    if(s.ExpenseType is null)
-                    {
-                        throw new ArgumentException(nameof(s.ExpenseType));
-                    }
-
-                    counter++;
-                    <tr>
-                        <td>@counter</td>
-                        <td>@s.ExpenseType.ToString()</td>
-                        <td>@s.ExpenseAmount.ToString()</td>
-                    </tr>
+                    throw new ArgumentException(nameof(s.ExpenseType));
                 }
+
+                counter++;
+                <tr style="opacity: 0.8; border-bottom:1px solid #000000; height: 40px; border-spacing: 10px;">
+                    <td>@counter</td>
+                    <td>@s.ExpenseType.ToString()</td>
+                    <td>@s.ExpenseAmount.ToString()</td>
+                </tr>
             }
+        }
 
-        </table>
-    </div>
-
+    </table>
 </div>

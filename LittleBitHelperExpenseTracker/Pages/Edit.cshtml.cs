@@ -37,7 +37,7 @@ namespace LittleBitHelperExpenseTracker.Pages
             string? expenseAmount = Request.Form["expenseAmount"];
             string? expenseComment = Request.Form["expenseComment"];
             string? dateTime = Request.Form["dateTime"];
-            string? currency = Request.Form["currency"];
+            string? currency = Request.Form["new_currency"];
             if (currency is null)
             {
                 _logger.LogError("Currency is null. Time: {Time}", DateTime.UtcNow);

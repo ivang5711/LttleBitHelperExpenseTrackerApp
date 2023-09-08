@@ -240,7 +240,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                         logger!.LogError("item.Currency is null. Time {Time}", DateTime.UtcNow);
                                         throw new ArgumentException(nameof(item));
                                     }
-                                    item.ExpenseAmount /= PersonPersistent.Rates[item.Currency];
+                                    item.ExpenseAmount /= ExchangeRatePersistent.Rates[item.Currency];
                                 }
 
                                 UsersList.FinalList.Clear();
@@ -260,7 +260,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                 float total = 0;
                                 foreach (var item in UsersList.FinalList)
                                 {
-                                    item.ExpenseAmount *= JsonOperations.PersonPersistent.Rates[defaultCurrency];
+                                    item.ExpenseAmount *= JsonOperations.ExchangeRatePersistent.Rates[defaultCurrency];
                                     total += item.ExpenseAmount;
                                 }
 
@@ -298,7 +298,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                         throw new ArgumentException(nameof(item.Currency));
                                     }
 
-                                    item.ExpenseAmount /= PersonPersistent.Rates[item.Currency];
+                                    item.ExpenseAmount /= ExchangeRatePersistent.Rates[item.Currency];
                                 }
 
                                 UsersList.FinalList.Clear();
@@ -317,7 +317,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
                                 foreach (var item in UsersList.FinalList)
                                 {
-                                    item.ExpenseAmount *= PersonPersistent.Rates[defaultCurrency];
+                                    item.ExpenseAmount *= ExchangeRatePersistent.Rates[defaultCurrency];
                                 }
 
                                 StringBuilder bld = new();

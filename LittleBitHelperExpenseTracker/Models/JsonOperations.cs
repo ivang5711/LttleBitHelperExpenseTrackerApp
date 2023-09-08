@@ -18,7 +18,7 @@ namespace LittleBitHelperExpenseTracker.Models
 
         static readonly HttpClient client = new();
 
-        public static class PersonPersistent
+        public static class ExchangeRatePersistent
         {
             public static string Disclaimer { get; set; } = string.Empty;
             public static string License { get; set; } = string.Empty;
@@ -60,11 +60,11 @@ namespace LittleBitHelperExpenseTracker.Models
                 return;
             }
 
-            PersonPersistent.Disclaimer = person.Disclaimer;
-            PersonPersistent.License = person.License;
-            PersonPersistent.Timestamp = person.Timestamp;
-            PersonPersistent.Base = person.Base;
-            PersonPersistent.Rates = person.Rates;
+            ExchangeRatePersistent.Disclaimer = person.Disclaimer;
+            ExchangeRatePersistent.License = person.License;
+            ExchangeRatePersistent.Timestamp = person.Timestamp;
+            ExchangeRatePersistent.Base = person.Base;
+            ExchangeRatePersistent.Rates = person.Rates;
             _logger.LogInformation("Json file mapped successfully");
             watch.Stop();
             _logger.LogDebug("Map Json total execution time is {time} milliseconds", watch.ElapsedMilliseconds);

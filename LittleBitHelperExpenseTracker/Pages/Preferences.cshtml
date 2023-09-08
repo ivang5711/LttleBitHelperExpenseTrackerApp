@@ -8,22 +8,31 @@
 }
 
 <h4 style="margin: 20px; display: flex; justify-content: center">Preferences</h4>
-<div style="margin-left: auto; margin-right: auto; display: block; width: 25%; text-align: center">
-    <p>Base currency for all calculations is @JsonOperations.PersonPersistent.Base</p>
-    <p>Your default currency: <span class="imported_value">@PreferencesModel.DefaultCurrency</span></p>
-    <p>1 USD = <span class="imported_value">@JsonOperations.PersonPersistent.Rates[PreferencesModel.DefaultCurrency] @PreferencesModel.DefaultCurrency</span></p>
-    <p>Rate: <span class="imported_value">@JsonOperations.PersonPersistent.Rates[PreferencesModel.DefaultCurrency]</span></p>
-    <form method="post" style="margin-left: auto; margin-right: auto; display: block; width: 25%;">
-        <select id="currency" name="currency" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Currency...">
-            <option value="@PreferencesModel.DefaultCurrency">@PreferencesModel.DefaultCurrency</option>
-            @foreach (var item in JsonOperations.PersonPersistent.Rates.Keys)
-            {
-                <option value="@item">@item</option>
-            }
-        </select>
-        <input type="submit" style="display: block; padding: 12px 20px; margin: 8px 0">
+
+
+<p>Base currency for all calculations is @JsonOperations.ExchangeRatePersistent.Base</p>
+<p>Your default currency: <span class="imported_value">@PreferencesModel.DefaultCurrency</span></p>
+<p>1 USD = <span class="imported_value">@JsonOperations.ExchangeRatePersistent.Rates[PreferencesModel.DefaultCurrency] @PreferencesModel.DefaultCurrency</span></p>
+<p>Rate: <span class="imported_value">@JsonOperations.ExchangeRatePersistent.Rates[PreferencesModel.DefaultCurrency]</span></p>
+
+
+<div>
+    <form method="post">
+        <div>
+            <label for="currency" class="regular">Change currency to:</label>
+            <select id="currency" name="currency" class="dropdown">
+                <option value="@PreferencesModel.DefaultCurrency">@PreferencesModel.DefaultCurrency</option>
+                @foreach (var item in JsonOperations.ExchangeRatePersistent.Rates.Keys)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
+        </div>
+        <br>
+        <button class="button" type="submit">Submit</button>
     </form>
 </div>
+
 
 @section Scripts {
     @{

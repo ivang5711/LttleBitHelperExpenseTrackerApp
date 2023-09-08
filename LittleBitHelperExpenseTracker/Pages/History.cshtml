@@ -7,10 +7,9 @@
 
 <h4 style="margin: 20px; display: flex; justify-content: center">History</h4>
 
-
-<div class="text-center" style="margin: 20px; display: flex; justify-content: center;">
-    <table class="table" style="max-inline-size: 800px;">
-        <tr>
+<div class="table">
+    <table class="table" id="myTable">
+        <tr class="table_header">
             <th>#</th>
             <th>Id</th>
             <th>Expense type</th>
@@ -33,26 +32,27 @@
                 }
 
                 counter++;
-                <tr>
+                <tr class="table_row">
                     <td>@counter</td>
                     <td>@s.Id</td>
                     <td>@s.ExpenseType.ToString()</td>
                     <td>@s.ExpenseAmount.ToString()</td>
-                    <td>@s.ExpenseComment</td>
+                    <td class="allow_wrap">@s.ExpenseComment</td>
                     <td>@s.DateTime</td>
                     <td>@s.UserId</td>
                     <td>@s.Currency</td>
                     <td>
                         <form asp-page="Edit" asp-page-handler="Edit" method="post">
-                            <input name="idToEdit" value="@s.Id" style="visibility: hidden" />
-                            <input type="submit" value="Edit" />
+                            <button class="button" id="edit" name="idToEdit" value="@s.Id" type="submit">
+                                Edit
+                            </button>
                         </form>
                     </td>
-
                     <td>
                         <form method="post">
-                            <input name="toDelete" style="visibility: hidden" value="@s.Id">
-                            <input type="submit" value="Delete">
+                            <button class="button" id="delete" name="toDelete" value="@s.Id" type="submit">
+                                Delete
+                            </button>
                         </form>
                     </td>
                 </tr>
@@ -61,9 +61,8 @@
 
     </table>
 </div>
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
+    }

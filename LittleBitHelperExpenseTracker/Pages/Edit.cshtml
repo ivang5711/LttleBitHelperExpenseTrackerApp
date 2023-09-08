@@ -9,69 +9,66 @@
 
 <h1>Edit</h1>
 
-<div class="text-center" style="margin: 20px; display: flex; justify-content: center;">
-    <form asp-page="Edit" method="post">
-        <table class="table" style="max-inline-size: 800px;">
-            <tr>
+<form asp-page="Edit" method="post">
+    <table class="table" id="myTable">
+        <tr class="table_header">
+            <th>Expense type</th>
+            <th>Expense amount</th>
+            <th>Expense comment</th>
+            <th>Date Time</th>
+            <th>Currency</th>
+            <th>Submit</th>
+            <th>Cancel</th>
+        </tr>
 
-                <th>Expense type</th>
-                <th>Expense amount</th>
-                <th>Expense comment</th>
-                <th>Date Time</th>
-                <th>Currency</th>
-                <th>Submit</th>
-                <th>Cancel</th>
-            </tr>
-
-            @{
-                int counter = 0;
-                foreach (var s in EditModel.UsersList.NList)
+        @{
+            int counter = 0;
+            foreach (var s in EditModel.UsersList.NList)
+            {
+                if (s.ExpenseType is null)
                 {
-                    if (s.ExpenseType is null)
-                    {
-                        throw new ArgumentException(nameof(s));
-                    }
-                    counter++;
-                    <tr>
-                        <td>
-                            <input placeholder="@s.ExpenseType.ToString()" name="expenseType" type="text">
-                        </td>
-                        <td>
-                            <input placeholder="@s.ExpenseAmount.ToString()" name="expenseAmount" type="text">
-                        </td>
-                        <td>
-                            <input placeholder="@s.ExpenseComment" name="expenseComment" type="text">
-                        </td>
-                        <td>
-                            <label>@s.DateTime</label>
-                            <input placeholder="@s.DateTime" name="dateTime" type="datetime-local">
-                        </td>
-                        <td>
-                            <select id="currency" name="currency" style="display: block; padding: 12px 20px; margin: 8px 0" placeholder=" Currency...">
-                                <option value="@s.Currency">@s.Currency</option>
-                                <option value="@PreferencesModel.DefaultCurrency">@PreferencesModel.DefaultCurrency</option>
-                                @foreach (var item in JsonOperations.PersonPersistent.Rates.Keys)
-                                {
-                                    <option value="@item">@item</option>
-                                }
-                            </select>
-                        </td>
-
-                        <td>
-                            <input type="submit" name="toUpdate" value="Submit">
-                        </td>
-
-                        <td>
-
-                            <input type="submit" name="toCancel" value="Cancel">
-                        </td>
-                    </tr>
+                    throw new ArgumentException(nameof(s));
                 }
+                counter++;
+                <tr class="table_row">
+                    <td>
+                        <input placeholder="@s.ExpenseType.ToString()" name="expenseType" type="text" class="input" id="new_type" value="@s.ExpenseType">
+                    </td>
+                    <td>
+                        <input placeholder="@s.ExpenseAmount.ToString()" name="expenseAmount" class="input" type="number" id="new_amount" value="@s.ExpenseAmount">
+                    </td>
+                    <td>
+                        <input placeholder="@s.ExpenseComment" name="expenseComment" type="text" class="input" id="new_comment" value="@s.ExpenseComment">
+                    </td>
+                    <td class="cell_aligned_vertical">
+                        <input value="@s.DateTime" name="dateTime" type="datetime-local">
+                    </td>
+                    <td>
+                        <select id="new_currency" name="new_currency" class="dropdown">
+                            <option value="@s.Currency">@s.Currency</option>
+                            <option value="@PreferencesModel.DefaultCurrency">@PreferencesModel.DefaultCurrency</option>
+                            @foreach (var item in JsonOperations.ExchangeRatePersistent.Rates.Keys)
+                            {
+                                <option value="@item">@item</option>
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <button class="button" id="submit_changes" name="toUpdate" type="submit" value="Edit">
+                            Submit
+                        </button>
+                    </td>
+                    <td>
+                        <button class="button" id="submit_changes" name="toCancel" type="submit" value="Cancel">
+                            Cancel
+                        </button>
+                    </td>
+                </tr>
             }
+        }
 
-        </table>
-    </form>
-</div>
+    </table>
+</form>
 
 @section Scripts {
     @{

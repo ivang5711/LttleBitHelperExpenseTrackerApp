@@ -4,20 +4,18 @@
     ViewData["Title"] = "Error";
 }
 
-@if (ErrorModel.OriginalStatusCode == 0)
-{
-    <h1 class="text-danger">Error</h1>
-    <h2 class="text-danger">An error occurred while processing your request.</h2>
-}
-else
-{
-    <h1 class="text-danger">Error @ErrorModel.OriginalStatusCode</h1>
-    <h2 class="text-danger">An error occurred while processing your request.</h2>
-}
 
-<p>
-    Try to reload the page
-</p>
-<p>
-    or come back later
-</p>
+<div class="container">
+    <img src="~/images/egg.jpg" height="450" alt="error">
+    @if (ErrorModel.OriginalStatusCode == 0)
+    {
+        <div class="centered_top">Error</div>
+        <div class="centered_bottom">An error occurred while processing your request</div>
+    }
+    else
+    {
+        <div class="centered_top">Error @ErrorModel.OriginalStatusCode</div>
+        <div class="centered_bottom">An error occurred<br/>while processing your request</div>
+    }
+    
+</div>
