@@ -16,14 +16,17 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ILogger<IndexModel> _logger;
         private static readonly string dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            ILogger<IndexModel> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _logger = logger;
         }
 
         /// <summary>
@@ -106,7 +109,7 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
             }
 
             var tempUserNumber = user.PhoneNumber;
-            Console.WriteLine("TempUN = " + tempUserNumber);
+            _logger.LogDebug("TemporaryBinaryValueGenerator user phone number = {0}", tempUserNumber);
             user.PhoneNumber = Input.PhoneNumber;
             using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
             {
@@ -115,16 +118,15 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
                 {
                     connection.Execute(sql);
                 }
-                catch (SQLiteException)
+                catch (SQLiteException ex)
                 {
                     StatusMessage = "Error occured. The ID value already used.";
+                    _logger.LogError("SQLite DB update exception: {Exception}", ex);
                     return RedirectToPage();
                 }
                 catch (Exception ex)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    await Console.Out.WriteLineAsync($"SQLite DB update exception:\n{ex}");
-                    Console.ForegroundColor = ConsoleColor.White;
+                    _logger.LogError("SQLite DB update exception: {Exception}", ex);
                     return RedirectToPage();
                 }
             }
@@ -133,6 +135,7 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
             if (!setPhoneResult.Succeeded)
             {
                 StatusMessage = "Unexpected error when trying to set phone number.";
+                _logger.LogError("Unexpected error when trying to set phone number.");
                 return RedirectToPage();
             }
 
@@ -147,18 +150,18 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
                 catch (SQLiteException ex)
                 {
                     StatusMessage = "Error occured." + ex;
+                    _logger.LogError("SQLite DB exception: {Exception}", ex);
                     return RedirectToPage();
                 }
                 catch (Exception ex)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    await Console.Out.WriteLineAsync($"SQLite DB update exception:\n{ex}");
-                    Console.ForegroundColor = ConsoleColor.White;
+                    _logger.LogError("SQLite DB exception: {Exception}", ex);
                     return RedirectToPage();
                 }
             }
 
             StatusMessage = "Your profile has been updated";
+            _logger.LogDebug("Your profile has been updated");
             return RedirectToPage();
         }
     }

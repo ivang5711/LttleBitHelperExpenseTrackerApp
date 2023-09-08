@@ -10,7 +10,6 @@ namespace LittleBitHelperExpenseTracker.Models
         public string GetDefaultCurrecncy(IdentityUser user)
         {
 
-            Thread.Sleep(100);
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             if (user.PhoneNumber == null)
             {
@@ -19,7 +18,6 @@ namespace LittleBitHelperExpenseTracker.Models
 
             var sql = $"SELECT localCurrency FROM users WHERE localUserId={int.Parse(user.PhoneNumber)};";
             var result = connection.Query<Users>(sql);
-            Thread.Sleep(100);
             string defaultCurrency = "USD";
 
             foreach (Users item in result)

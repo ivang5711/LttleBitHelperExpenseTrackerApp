@@ -80,8 +80,8 @@ namespace LittleBitHelperExpenseTracker.Pages
                 UsersList.FinalList.Clear();
                 int tempTime = Random.Shared.Next();
                 _ = _userManager.SetPhoneNumberAsync(user, tempTime.ToString());
-                var a = _userManager.GenerateChangePhoneNumberTokenAsync(user, tempTime.ToString()).Result;
-                _ = _userManager.ChangePhoneNumberAsync(user, tempTime.ToString(), a);
+                var a = _userManager.GenerateChangePhoneNumberTokenAsync(user, tempTime.ToString());
+                _ = _userManager.ChangePhoneNumberAsync(user, tempTime.ToString(), await a);
 
                 if (user.UserName is null || user.UserName.Length == 0)
                 {

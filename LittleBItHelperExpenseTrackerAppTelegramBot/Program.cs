@@ -18,11 +18,13 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
         protected Program()
         { }
 
+        private static ILogger? logger;
+
         private static readonly string? botToken = Environment.GetEnvironmentVariable("LBHB1");
         private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
         private static readonly string[] CurrencyKeys = new string[] { "default", "AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BTC", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHF", "CLF", "CLP", "CNH", "CNY", "COP", "CRC", "CUC", "CUP", "CVE", "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL", "GGP", "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF", "IDR", "ILS", "IMP", "INR", "IQD", "IRR", "ISK", "JEP", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF", "KPW", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN", "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR", "SBD", "SCR", "SDG", "SEK", "SGD", "SHP", "SLL", "SOS", "SRD", "SSP", "STD", "STN", "SVC", "SYP", "SZL", "THB", "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX", "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XAG", "XAU", "XCD", "XDR", "XOF", "XPD", "XPF", "XPT", "YER", "ZAR", "ZMW", "ZWL" };
 
-        private static async Task Main()
+        public static async Task Main()
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             using var loggerFactory = LoggerFactory.Create(builder =>
@@ -34,7 +36,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                     .AddConsole()
                     .SetMinimumLevel(LogLevel.Information);
             });
-            ILogger logger = loggerFactory.CreateLogger<Program>();
+            logger = loggerFactory.CreateLogger<Program>();
             Console.Title = "LittleBitHelperExpenseTrackerAppTelegramBot";
             if (botToken is null)
             {
@@ -49,27 +51,27 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                 .AddJsonFile("config.json", optional: false);
             IConfiguration config = builder.Build();
 
-            Default = config.Get<Settings>();
-            if (Default != null)
+            ConfigSettings = config.Get<Settings>();    
+            if (ConfigSettings != null)
             {
-                if (Default.InitialConsoleOutputColor == "Red")
+                if (ConfigSettings.InitialConsoleOutputColor == "Red")
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                 }
-                else if (Default.InitialConsoleOutputColor == "Green")
+                else if (ConfigSettings.InitialConsoleOutputColor == "Green")
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
 
-                Console.WriteLine(Default.InitialConsoleOutputColor);
+                Console.WriteLine("Config settings read successfully! Text color set to {0}", ConfigSettings.InitialConsoleOutputColor);
             }
             else
             {
-                logger.LogError("config.json settings can not be read. Time: {Time}", bot.GetMeAsync().Result.FirstName);
+                logger.LogError("config.json settings can not be read. Time: {Time}", (await bot.GetMeAsync()).FirstName);
             }
 
             await Task1;
-            logger.LogInformation("Bot client for {BotName} bot started. Time: {Time}", bot.GetMeAsync().Result.FirstName, DateTime.UtcNow);
+            logger.LogInformation("Bot client for {BotName} bot started. Time: {Time}", (await bot.GetMeAsync()).FirstName, DateTime.UtcNow);
             var cts = new CancellationTokenSource();
             var cancellationToken = cts.Token;
             var receiverOptions = new ReceiverOptions
@@ -88,8 +90,6 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
         }
         public static async Task<bool> CheckUser(ITelegramBotClient botClient, Message? message)
         {
-            Thread.Sleep(100);
-            Console.WriteLine($"database path: {dbPath}.");
             using var connection = new SQLiteConnection($"Data Source={dbPath}");
             var sql = $"SELECT localUserId FROM users;";
             var result = connection.Query<TelegramUsers>(sql).ToList();
@@ -125,12 +125,13 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(update));
+            logger!.LogDebug("Details: {Details}", Newtonsoft.Json.JsonConvert.SerializeObject(update));
             if (update.Type == UpdateType.Message)
             {
                 Message? message = update.Message;
                 if (message is null || message.Text is null)
                 {
+                    logger!.LogError("message is null. Time {Time}", DateTime.UtcNow);
                     return;
                 }
                 string messageRecieved = message.Text.ToLower();
@@ -171,15 +172,12 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
                                 if (messages.Count >= 3)
                                 {
-                                    if (float.TryParse(messages[2], out float amountParsed))
-                                    {
-                                        Console.WriteLine("Parsed successfully!");
-                                    }
-                                    else
+                                    if (!float.TryParse(messages[2], out float amountParsed))
                                     {
                                         await botClient.SendTextMessageAsync(message.Chat, "Parsing failure", cancellationToken: cancellationToken);
                                         return;
                                     }
+
                                     string parsedComment = string.Empty;
                                     if (messages.Count > 3)
                                     {
@@ -192,8 +190,6 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                         parsedComment = bld.ToString();
                                     }
 
-                                    Thread.Sleep(100);
-                                    Console.WriteLine($"database path: {dbPath}.");
                                     using var connection = new SQLiteConnection($"Data Source={dbPath}");
                                     var sql = $"SELECT localCurrency FROM users WHERE localUserId = {message.Chat.Id};";
                                     var result = connection.Query<TelegramUsers>(sql).ToList();
@@ -203,13 +199,8 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                         defaultCurrency = item.LocalCurrency;
                                     }
 
-                                    Console.WriteLine($"database path: {dbPath}.");
-                                    Thread.Sleep(100);
                                     sql = $"INSERT INTO expenses (expenseType, expenseAmount, expenseComment, dateTime, userId, currency) VALUES ('{messages[1]}', {amountParsed}, '{parsedComment}', '{DateTime.UtcNow}', {message.Chat.Id}, '{defaultCurrency}');";
-                                    Thread.Sleep(100);
                                     var res = connection.Execute(sql);
-                                    Thread.Sleep(100);
-                                    Console.WriteLine("result count: " + result);
                                     if (res > 0)
                                     {
                                         await botClient.SendTextMessageAsync(message.Chat, $"New record added successfully", cancellationToken: cancellationToken);
@@ -228,8 +219,6 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
                         if (messageRecieved.Length >= 4 && messageRecieved[0..4] == "/all")
                         {
-                            Thread.Sleep(100);
-                            Console.WriteLine($"database path: {dbPath}.");
                             using var connection = new SQLiteConnection($"Data Source={dbPath}");
                             var sql = $"SELECT localCurrency FROM users WHERE localUserId = {message.Chat.Id};";
                             var result = connection.Query<TelegramUsers>(sql).ToList();
@@ -239,7 +228,6 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                 defaultCurrency = item.LocalCurrency;
                             }
 
-                            Thread.Sleep(100);
                             sql = $"SELECT expenseType, SUM(expenseAmount) AS expenseAmount, currency FROM expenses WHERE userId={message.Chat.Id} GROUP BY expenseType, currency;";
                             connection.Query<Expenses>(sql);
                             UsersList.NList = connection.Query<Expenses>(sql).ToList();
@@ -249,6 +237,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                 {
                                     if (item.Currency is null)
                                     {
+                                        logger!.LogError("item.Currency is null. Time {Time}", DateTime.UtcNow);
                                         throw new ArgumentException(nameof(item));
                                     }
                                     item.ExpenseAmount /= PersonPersistent.Rates[item.Currency];
@@ -287,8 +276,6 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
                         if (messageRecieved.Length >= 6 && messageRecieved[0..6] == "/typed")
                         {
-                            Thread.Sleep(100);
-                            Console.WriteLine($"database path: {dbPath}.");
                             using var connection = new SQLiteConnection($"Data Source={dbPath}");
                             var sql = $"SELECT localCurrency FROM users WHERE localUserId = {message.Chat.Id};";
                             var result = connection.Query<TelegramUsers>(sql).ToList();
@@ -298,7 +285,6 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                 defaultCurrency = item.LocalCurrency;
                             }
 
-                            Thread.Sleep(100);
                             sql = $"SELECT expenseType, SUM(expenseAmount) AS expenseAmount, currency FROM expenses WHERE userId={message.Chat.Id} GROUP BY expenseType, currency;";
                             connection.Query<Expenses>(sql);
                             UsersList.NList = connection.Query<Expenses>(sql).ToList();
@@ -308,6 +294,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                 {
                                     if (item.Currency is null)
                                     {
+                                        logger!.LogError("item.Currency is null. Time {Time}", DateTime.UtcNow);
                                         throw new ArgumentException(nameof(item.Currency));
                                     }
 
@@ -330,7 +317,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
                                 foreach (var item in UsersList.FinalList)
                                 {
-                                    item.ExpenseAmount *= JsonOperations.PersonPersistent.Rates[defaultCurrency];
+                                    item.ExpenseAmount *= PersonPersistent.Rates[defaultCurrency];
                                 }
 
                                 StringBuilder bld = new();
@@ -354,8 +341,6 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
                         if (messageRecieved.Length >= 8 && messageRecieved[0..8] == "/history")
                         {
-                            Thread.Sleep(100);
-                            Console.WriteLine($"database path: {dbPath}.");
                             using var connection = new SQLiteConnection($"Data Source={dbPath}");
                             var sql = $"SELECT * FROM expenses WHERE userId = {message.Chat.Id};";
                             var result = connection.Query<Expenses>(sql).ToList();
@@ -401,19 +386,15 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                 {
                                     if (int.TryParse(messages[1], out int delId))
                                     {
-                                        Console.WriteLine("Parsed successfully!");
+                                        logger!.LogDebug("Parsed successfully!");
                                     }
 
-                                    Thread.Sleep(100);
-                                    Console.WriteLine($"database path: {dbPath}.");
                                     using var connection = new SQLiteConnection($"Data Source={dbPath}");
                                     int tmpId = (int)message.Chat.Id;
                                     var sql = $"SELECT * FROM expenses WHERE userId = {tmpId} AND id = {delId};";
                                     var result = connection.Query<Expenses>(sql).ToList();
                                     if (result.Count > 0)
                                     {
-                                        Thread.Sleep(100);
-                                        Console.WriteLine($"database path: {dbPath}.");
                                         sql = $"DELETE FROM expenses WHERE userId = {tmpId} AND id = {delId};";
                                         int res = connection.Execute(sql);
                                         if (res > 0)
@@ -422,12 +403,12 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                         }
                                         else
                                         {
-                                            await botClient.SendTextMessageAsync(message.Chat, $"failed to delete record with ID {delId}", cancellationToken: cancellationToken);
+                                            await botClient.SendTextMessageAsync(message.Chat, $"Failed to delete record with ID {delId}", cancellationToken: cancellationToken);
                                         }
                                     }
                                     else
                                     {
-                                        await botClient.SendTextMessageAsync(message.Chat, "no such id in your records", cancellationToken: cancellationToken);
+                                        await botClient.SendTextMessageAsync(message.Chat, "No such id in your records", cancellationToken: cancellationToken);
                                     }
                                 }
                                 else
@@ -441,8 +422,6 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                         {
                             if (messageRecieved.TrimEnd() == "/currency")
                             {
-                                Thread.Sleep(100);
-                                Console.WriteLine($"database path: {dbPath}.");
                                 using var connection = new SQLiteConnection($"Data Source={dbPath}");
                                 var sql = $"SELECT localCurrency FROM users WHERE localUserId = {message.Chat.Id};";
                                 var result = connection.Query<TelegramUsers>(sql).ToList();
@@ -469,15 +448,9 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                 {
                                     if (CurrencyKeys.Contains(messages[1].ToUpper()))
                                     {
-                                        Thread.Sleep(100);
-                                        Console.WriteLine($"database path: {dbPath}.");
                                         using var connection = new SQLiteConnection($"Data Source={dbPath}");
-                                        Thread.Sleep(100);
                                         var sql = $"UPDATE users SET localCurrency = '{messages[1].ToUpper()}' WHERE localUserId = {message.Chat.Id};";
-                                        Thread.Sleep(100);
                                         var result = connection.Execute(sql);
-                                        Thread.Sleep(100);
-                                        Console.WriteLine("result count: " + result);
                                         if (result > 0)
                                         {
                                             await botClient.SendTextMessageAsync(message.Chat, $"Your default currency updated", cancellationToken: cancellationToken);
@@ -501,7 +474,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                     }
                     else
                     {
-                        Console.WriteLine("User not registred");
+                        logger!.LogInformation("User with id {id} not registred. Time {Time}", message.Chat.Id, DateTime.UtcNow);
                     }
                 }
                 else
@@ -513,10 +486,10 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
         public static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(exception));
+            logger!.LogInformation("Details: {Details}", Newtonsoft.Json.JsonConvert.SerializeObject(exception));
             return Task.CompletedTask;
         }
 
-        public static Settings? Default { get; set; }
+        public static Settings? ConfigSettings { get; set; }
     }
 }
