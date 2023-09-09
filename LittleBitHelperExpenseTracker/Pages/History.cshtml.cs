@@ -1,10 +1,10 @@
 ﻿using Dapper;
+using LittleBitHelperExpenseTracker.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Data.SQLite;
-using LittleBitHelperExpenseTracker.Models;
 
 namespace LittleBitHelperExpenseTracker.Pages
 {
@@ -13,7 +13,7 @@ namespace LittleBitHelperExpenseTracker.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly UserManager<IdentityUser> _userManager;
-        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
+        private static readonly string? dbPath = Program.Default!.DbPathData;
 
         public string? DefaultCurrency { get; set; }
         public int CurrentUserTelegramId { get; set; }

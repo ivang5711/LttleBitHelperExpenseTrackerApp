@@ -14,7 +14,8 @@ namespace LittleBitHelperExpenseTracker.Models
         }).CreateLogger<Program>();
 
         public static string JsonData { get; set; } = string.Empty;
-        public static string? JsonPath { get; set; } = Environment.GetEnvironmentVariable("jsonPath");
+
+        public static string? JsonPath { get; set; }
 
         static readonly HttpClient client = new();
 
@@ -36,8 +37,9 @@ namespace LittleBitHelperExpenseTracker.Models
             public required Dictionary<string, float> Rates { get; set; }
         }
 
-        public static void MapJson()
+        public static void MapJson(string jsonPath)
         {
+            JsonPath = jsonPath;
             var watch = System.Diagnostics.Stopwatch.StartNew();
             if (JsonPath == null)
             {
@@ -70,8 +72,9 @@ namespace LittleBitHelperExpenseTracker.Models
             _logger.LogDebug("Map Json total execution time is {time} milliseconds", watch.ElapsedMilliseconds);
         }
 
-        public static void CreateJson(string input)
+        public static void CreateJson(string input, string jsonPath)
         {
+            JsonPath = jsonPath;
             var watch = System.Diagnostics.Stopwatch.StartNew();
             if (JsonPath == null)
             {
@@ -100,8 +103,9 @@ namespace LittleBitHelperExpenseTracker.Models
             _logger.LogDebug("Create Json total execution time is {time} milliseconds", elapsedMs);
         }
 
-        public static bool CheckJson()
+        public static bool CheckJson(string jsonPath)
         {
+            JsonPath = jsonPath;
             var watch = System.Diagnostics.Stopwatch.StartNew();
             if (File.Exists(JsonPath))
             {
@@ -141,9 +145,10 @@ namespace LittleBitHelperExpenseTracker.Models
             return false;
         }
 
-        public static async Task JsonCheckAndUpdate()
+        public static async Task JsonCheckAndUpdate(string jsonPath)
         {
-            if (!CheckJson())
+            JsonPath = jsonPath;
+            if (!CheckJson(JsonPath))
             {
                 try
                 {
@@ -152,8 +157,8 @@ namespace LittleBitHelperExpenseTracker.Models
                     using HttpResponseMessage response = await client.GetAsync(ratesPath + app_id);
                     response.EnsureSuccessStatusCode();
                     string responseBody = await response.Content.ReadAsStringAsync();
-                    CreateJson(responseBody);
-                    MapJson();
+                    CreateJson(responseBody, JsonPath);
+                    MapJson(JsonPath);
                 }
                 catch (HttpRequestException e)
                 {
@@ -162,7 +167,7 @@ namespace LittleBitHelperExpenseTracker.Models
             }
             else
             {
-                MapJson();
+                MapJson(JsonPath);
             }
         }
     }

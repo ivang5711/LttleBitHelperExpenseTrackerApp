@@ -11,7 +11,7 @@ namespace LittleBitHelperExpenseTracker.Pages
     public class EditModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
-        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
+        private static readonly string? dbPath = Program.Default!.DbPathData;
 
         public EditModel(ILogger<IndexModel> logger)
         {

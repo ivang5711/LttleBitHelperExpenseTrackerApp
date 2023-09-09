@@ -14,7 +14,6 @@
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "jsonPath": "***REMOVED***",
         "dbPathLBH": "***REMOVED***",
         "exchangeRatesProviderPath": "https://openexchangerates.org/api/latest.json?",
         "exchangeAppId": "***REMOVED***"

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Data.SQLite;
-using static LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.RegisterConfirmationModel;
 
 namespace LittleBitHelperExpenseTracker.Pages
 {
@@ -13,7 +12,7 @@ namespace LittleBitHelperExpenseTracker.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly UserManager<IdentityUser> _userManager;
-        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
+        private static readonly string? dbPath = Program.Default!.DbPathData;
         public static string DefaultCurrency { get; set; } = string.Empty;
         public int CurrentUserTelegramId { get; set; }
 

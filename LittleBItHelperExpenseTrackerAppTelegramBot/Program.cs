@@ -20,9 +20,9 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
         { }
 
         private static ILogger? logger;
-
+        public static Settings? Default { get; set; }
         private static readonly string? botToken = Environment.GetEnvironmentVariable("LBHB1");
-        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
+        private static string? dbPath;
         private static readonly string[] CurrencyKeys = new string[] { "default", "AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BTC", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHF", "CLF", "CLP", "CNH", "CNY", "COP", "CRC", "CUC", "CUP", "CVE", "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL", "GGP", "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF", "IDR", "ILS", "IMP", "INR", "IQD", "IRR", "ISK", "JEP", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KMF", "KPW", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN", "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR", "SBD", "SCR", "SDG", "SEK", "SGD", "SHP", "SLL", "SOS", "SRD", "SSP", "STD", "STN", "SVC", "SYP", "SZL", "THB", "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX", "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XAG", "XAU", "XCD", "XDR", "XOF", "XPD", "XPF", "XPT", "YER", "ZAR", "ZMW", "ZWL" };
 
         public static async Task Main()
@@ -45,26 +45,26 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                 throw new ArgumentException(nameof(botToken));
             }
 
-            var Task1 = JsonCheckAndUpdate();
             ITelegramBotClient bot = new TelegramBotClient(botToken);
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("config.json", optional: false);
             IConfiguration config = builder.Build();
 
-            ConfigSettings = config.Get<Settings>();
-            if (ConfigSettings != null)
+            Default = config.Get<Settings>();
+            var Task1 = JsonCheckAndUpdate(Default!.JsonPath!);
+            if (Default != null)
             {
-                if (ConfigSettings.InitialConsoleOutputColor == "Red")
+                if (Default.InitialConsoleOutputColor == "Red")
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                 }
-                else if (ConfigSettings.InitialConsoleOutputColor == "Green")
+                else if (Default.InitialConsoleOutputColor == "Green")
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
 
-                Console.WriteLine("Config settings read successfully! Text color set to {0}", ConfigSettings.InitialConsoleOutputColor);
+                Console.WriteLine("Config settings read successfully! Text color set to {0}", Default.InitialConsoleOutputColor);
             }
             else
             {
@@ -72,6 +72,9 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
             }
 
             await Task1;
+            dbPath = Default!.DbPathData;
+            string cat = Path.Combine(Directory.GetCurrentDirectory(), dbPath!);
+            Console.WriteLine("CAT " + cat);
             logger.LogInformation("Bot client for {BotName} bot started. Time: {Time}", (await bot.GetMeAsync()).FirstName, DateTime.UtcNow);
             var cts = new CancellationTokenSource();
             var cancellationToken = cts.Token;
@@ -583,7 +586,5 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
             logger!.LogInformation("Details: {Details}", Newtonsoft.Json.JsonConvert.SerializeObject(exception));
             return Task.CompletedTask;
         }
-
-        public static Settings? ConfigSettings { get; set; }
     }
 }
