@@ -9,6 +9,7 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using static LittleBitHelperExpenseTracker.Models.JsonOperations;
 
 namespace LittleBitHelperExpenseTrackerAppTelegramBot
@@ -51,7 +52,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                 .AddJsonFile("config.json", optional: false);
             IConfiguration config = builder.Build();
 
-            ConfigSettings = config.Get<Settings>();    
+            ConfigSettings = config.Get<Settings>();
             if (ConfigSettings != null)
             {
                 if (ConfigSettings.InitialConsoleOutputColor == "Red")
@@ -142,13 +143,38 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                     {
                         if (messageRecieved.Length >= 6 && messageRecieved[0..6] == "/start")
                         {
-                            await botClient.SendTextMessageAsync(message.Chat, $"Dear {message.Chat.Username}\nHello and welcome to the LittleBitHelperBot!\nStart here:\n/start - shows this message\n/help - shows a list of available commands", cancellationToken: cancellationToken);
+                            ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+                                {
+                                    new KeyboardButton[] { "/start" },
+                                    new KeyboardButton[] { "/help" },
+
+                                })
+                            {
+                                ResizeKeyboard = true
+                            };
+
+                            await botClient.SendTextMessageAsync(message.Chat, $"Dear {message.Chat.Username}\nHello and welcome to the LittleBitHelperBot!\nStart here:\n/start - shows this message\n/help - shows a list of available commands", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                             return;
                         }
 
                         if (messageRecieved.Length >= 5 && messageRecieved[0..5] == "/help")
                         {
-                            await botClient.SendTextMessageAsync(message.Chat, "A list of available commands:\n/start - shows welcome message\n/help - shows a list of available commands\n/new - add a new expense record.\nUseage: type amount comment.\nExample: taxi 350 to airport\n/all - provides a summ of all expenses for all time\n/typed - provides a list of types with total amount spent for each type\n/history - prints out all the records\n/delete - allows to deleta a record.\nUsage: specify a record id (history command can help to find an id).\nExample: 17\n/currency - allows to change the default currency.\nUsage: specify new currency.\nExample: USD\nYou can get the current currency value by sending the following command:\n/currency current", cancellationToken: cancellationToken);
+                            ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+                                {
+                                    new KeyboardButton[] { "/start" },
+                                    new KeyboardButton[] { "/help" },
+                                    new KeyboardButton[] { "/new" },
+                                    new KeyboardButton[] { "/all" },
+                                    new KeyboardButton[] { "/typed" },
+                                    new KeyboardButton[] { "/history" },
+                                    new KeyboardButton[] { "/delete" },
+                                    new KeyboardButton[] { "/currency" },
+                                })
+                            {
+                                ResizeKeyboard = true
+                            };
+
+                            await botClient.SendTextMessageAsync(message.Chat, "A list of available commands:\n/start - shows welcome message\n/help - shows a list of available commands\n/new - add a new expense record.\nUseage: type amount comment.\nExample: taxi 350 to airport\n/all - provides a summ of all expenses for all time\n/typed - provides a list of types with total amount spent for each type\n/history - prints out all the records\n/delete - allows to deleta a record.\nUsage: specify a record id (history command can help to find an id).\nExample: 17\n/currency - allows to change the default currency.\nUsage: specify new currency.\nExample: USD\nYou can get the current currency value by sending the following command:\n/currency current", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                             return;
                         }
 
@@ -156,7 +182,16 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                         {
                             if (messageRecieved.TrimEnd() == "/new")
                             {
-                                await botClient.SendTextMessageAsync(message.Chat, "To add a record you must provide type, amount and optional comment using following syntax: /new [type] [ammount] [comment]\nExample:\n/new Food 123 Bought a bag of fruits on a local food market. Tasty!", cancellationToken: cancellationToken);
+                                ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+    {
+                                    new KeyboardButton[] { "/help" },
+                                    new KeyboardButton[] { "/new" },
+                                    new KeyboardButton[] { "/currency" },
+                                })
+                                {
+                                    ResizeKeyboard = true
+                                };
+                                await botClient.SendTextMessageAsync(message.Chat, "To add a record you must provide type, amount and optional comment using following syntax: /new [type] [ammount] [comment]\nExample:\n/new Food 123 Bought a bag of fruits on a local food market. Tasty!", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                             }
                             else
                             {
@@ -219,6 +254,16 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
                         if (messageRecieved.Length >= 4 && messageRecieved[0..4] == "/all")
                         {
+                            ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+    {
+                                    new KeyboardButton[] { "/help" },
+                                    new KeyboardButton[] { "/all" },
+                                    new KeyboardButton[] { "/history" },
+                                    new KeyboardButton[] { "/currency" },
+                                })
+                            {
+                                ResizeKeyboard = true
+                            };
                             using var connection = new SQLiteConnection($"Data Source={dbPath}");
                             var sql = $"SELECT localCurrency FROM users WHERE localUserId = {message.Chat.Id};";
                             var result = connection.Query<TelegramUsers>(sql).ToList();
@@ -260,15 +305,16 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                 float total = 0;
                                 foreach (var item in UsersList.FinalList)
                                 {
-                                    item.ExpenseAmount *= JsonOperations.ExchangeRatePersistent.Rates[defaultCurrency];
+                                    item.ExpenseAmount *= ExchangeRatePersistent.Rates[defaultCurrency];
                                     total += item.ExpenseAmount;
                                 }
 
-                                await botClient.SendTextMessageAsync(message.Chat, $"Expense summ calculated in your default currency: {defaultCurrency}\nTOTAL: {total}", cancellationToken: cancellationToken);
+
+                                await botClient.SendTextMessageAsync(message.Chat, $"Expense summ calculated in your default currency: {defaultCurrency}\nTOTAL: {total}", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                             }
                             else
                             {
-                                await botClient.SendTextMessageAsync(message.Chat, "No records so far...", cancellationToken: cancellationToken);
+                                await botClient.SendTextMessageAsync(message.Chat, "No records so far...", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                             }
 
                             return;
@@ -276,6 +322,16 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
                         if (messageRecieved.Length >= 6 && messageRecieved[0..6] == "/typed")
                         {
+                            ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+    {
+                                    new KeyboardButton[] { "/help" },
+                                    new KeyboardButton[] { "/all" },
+                                    new KeyboardButton[] { "/history" },
+                                    new KeyboardButton[] { "/currency" },
+                                })
+                            {
+                                ResizeKeyboard = true
+                            };
                             using var connection = new SQLiteConnection($"Data Source={dbPath}");
                             var sql = $"SELECT localCurrency FROM users WHERE localUserId = {message.Chat.Id};";
                             var result = connection.Query<TelegramUsers>(sql).ToList();
@@ -329,11 +385,11 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                 }
 
                                 resString = bld.ToString();
-                                await botClient.SendTextMessageAsync(message.Chat, resString, cancellationToken: cancellationToken);
+                                await botClient.SendTextMessageAsync(message.Chat, resString, replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                             }
                             else
                             {
-                                await botClient.SendTextMessageAsync(message.Chat, "No records so far...", cancellationToken: cancellationToken);
+                                await botClient.SendTextMessageAsync(message.Chat, "No records so far...", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                             }
 
                             return;
@@ -341,6 +397,18 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
 
                         if (messageRecieved.Length >= 8 && messageRecieved[0..8] == "/history")
                         {
+                            ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+    {
+                                    new KeyboardButton[] { "/help" },
+                                    new KeyboardButton[] { "/new" },
+                                    new KeyboardButton[] { "/all" },
+                                    new KeyboardButton[] { "/typed" },
+                                    new KeyboardButton[] { "/delete" },
+                                    new KeyboardButton[] { "/currency" },
+                                })
+                            {
+                                ResizeKeyboard = true
+                            };
                             using var connection = new SQLiteConnection($"Data Source={dbPath}");
                             var sql = $"SELECT * FROM expenses WHERE userId = {message.Chat.Id};";
                             var result = connection.Query<Expenses>(sql).ToList();
@@ -355,20 +423,28 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                 }
 
                                 resString = bld.ToString();
-                                await botClient.SendTextMessageAsync(message.Chat, resString, cancellationToken: cancellationToken);
+                                await botClient.SendTextMessageAsync(message.Chat, resString, replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                             }
                             else
                             {
-                                await botClient.SendTextMessageAsync(message.Chat, "no history yet...\nTo add new record use /new command", cancellationToken: cancellationToken);
+                                await botClient.SendTextMessageAsync(message.Chat, "no history yet...\nTo add new record use /new command", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                             }
                             return;
                         }
 
                         if (messageRecieved.Length >= 7 && messageRecieved[0..7] == "/delete")
                         {
+                            ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+    {
+                                    new KeyboardButton[] { "/help" },
+                                    new KeyboardButton[] { "/history" },
+                                })
+                            {
+                                ResizeKeyboard = true
+                            };
                             if (messageRecieved.TrimEnd() == "/delete")
                             {
-                                await botClient.SendTextMessageAsync(message.Chat, "To delete a record you must provide an ID of the record.\nUse /history command to get ID of a record to delete", cancellationToken: cancellationToken);
+                                await botClient.SendTextMessageAsync(message.Chat, "To delete a record you must provide an ID of the record.\nUse /history command to get ID of a record to delete", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                             }
                             else
                             {
@@ -399,27 +475,37 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                         int res = connection.Execute(sql);
                                         if (res > 0)
                                         {
-                                            await botClient.SendTextMessageAsync(message.Chat, $"Record with ID {delId} deleted successfully", cancellationToken: cancellationToken);
+                                            await botClient.SendTextMessageAsync(message.Chat, $"Record with ID {delId} deleted successfully", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                                         }
                                         else
                                         {
-                                            await botClient.SendTextMessageAsync(message.Chat, $"Failed to delete record with ID {delId}", cancellationToken: cancellationToken);
+                                            await botClient.SendTextMessageAsync(message.Chat, $"Failed to delete record with ID {delId}", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                                         }
                                     }
                                     else
                                     {
-                                        await botClient.SendTextMessageAsync(message.Chat, "No such id in your records", cancellationToken: cancellationToken);
+                                        await botClient.SendTextMessageAsync(message.Chat, "No such id in your records", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                                     }
                                 }
                                 else
                                 {
-                                    await botClient.SendTextMessageAsync(message.Chat, "Wrong argument. Try again...", cancellationToken: cancellationToken);
+                                    await botClient.SendTextMessageAsync(message.Chat, "Wrong argument. Try again...", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                                 }
                             }
                         }
 
                         if (messageRecieved.Length >= 9 && messageRecieved[0..9] == "/currency")
                         {
+                            ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+    {
+                                    new KeyboardButton[] { "/help" },
+                                    new KeyboardButton[] { "/new" },
+                                    new KeyboardButton[] { "/history" },
+                                    new KeyboardButton[] { "/delete" },
+                                })
+                            {
+                                ResizeKeyboard = true
+                            };
                             if (messageRecieved.TrimEnd() == "/currency")
                             {
                                 using var connection = new SQLiteConnection($"Data Source={dbPath}");
@@ -429,7 +515,7 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                 foreach (var item in result)
                                 {
                                     defaultCurrency = item.LocalCurrency;
-                                    await botClient.SendTextMessageAsync(message.Chat, $"Current default currency is: {defaultCurrency}\nTo change your default currency use the following syntax:\n/currency [your new currency]\nExample:\n/currency USD", cancellationToken: cancellationToken);
+                                    await botClient.SendTextMessageAsync(message.Chat, $"Current default currency is: {defaultCurrency}\nTo change your default currency use the following syntax:\n/currency [your new currency]\nExample:\n/currency USD", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                                 }
                             }
                             else
@@ -453,21 +539,21 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                                         var result = connection.Execute(sql);
                                         if (result > 0)
                                         {
-                                            await botClient.SendTextMessageAsync(message.Chat, $"Your default currency updated", cancellationToken: cancellationToken);
+                                            await botClient.SendTextMessageAsync(message.Chat, $"Your default currency updated", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                                         }
                                         else
                                         {
-                                            await botClient.SendTextMessageAsync(message.Chat, $"Your default currency was not updated", cancellationToken: cancellationToken);
+                                            await botClient.SendTextMessageAsync(message.Chat, $"Your default currency was not updated", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                                         }
                                     }
                                     else
                                     {
-                                        await botClient.SendTextMessageAsync(message.Chat, $"{messages[1].ToUpper()} not found...", cancellationToken: cancellationToken);
+                                        await botClient.SendTextMessageAsync(message.Chat, $"{messages[1].ToUpper()} not found...", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                                     }
                                 }
                                 else
                                 {
-                                    await botClient.SendTextMessageAsync(message.Chat, "Wrong argument. Try again...", cancellationToken: cancellationToken);
+                                    await botClient.SendTextMessageAsync(message.Chat, "Wrong argument. Try again...", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                                 }
                             }
                         }
@@ -479,7 +565,15 @@ namespace LittleBitHelperExpenseTrackerAppTelegramBot
                 }
                 else
                 {
-                    await botClient.SendTextMessageAsync(message.Chat, "Command not recognized. Try /help command", cancellationToken: cancellationToken);
+                    ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+    {
+                                    new KeyboardButton[] { "/start" },
+                                    new KeyboardButton[] { "/help" },
+                                })
+                    {
+                        ResizeKeyboard = true
+                    };
+                    await botClient.SendTextMessageAsync(message.Chat, "Command not recognized. Try /help command", replyMarkup: replyKeyboardMarkup, cancellationToken: cancellationToken);
                 }
             }
         }
