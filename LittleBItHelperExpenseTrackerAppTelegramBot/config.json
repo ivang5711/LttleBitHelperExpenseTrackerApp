@@ -1,6 +1,6 @@
 {
   "InitialConsoleOutputColor": "Green",
   "ExchangeRateProviderAddress": "https://openexchangerates.org/api/latest.json?",
-  "key3": "value23",
-  "key4": "value24"
+  "DbPathData": "tracker-database.db",
+  "JsonPath": "data.json"
 }

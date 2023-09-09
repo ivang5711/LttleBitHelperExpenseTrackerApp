@@ -21,9 +21,9 @@ namespace LittleBitHelperExpenseTracker
         {
             Console.Title = "LittleBitHelperExpenseTrackerApp";
             var builder = WebApplication.CreateBuilder(args);
-            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection2") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
+                options.UseSqlite(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -59,7 +59,7 @@ namespace LittleBitHelperExpenseTracker
                 await Console.Out.WriteLineAsync(Default.InitialConsoleOutputColor);
             }
 
-            await JsonCheckAndUpdate();
+            await JsonCheckAndUpdate(Default!.JsonPath!);
             app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
             app.UseExceptionHandler("/Error");
             app.Run();

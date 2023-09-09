@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Dapper;
+using Microsoft.AspNetCore.Identity;
 using System.Data.SQLite;
-using Dapper;
 
 namespace LittleBitHelperExpenseTracker.Models
 {
     public class GetDefaultCurrency
     {
-        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
+        private static readonly string? dbPath = Program.Default!.DbPathData;
         public string GetDefaultCurrecncy(IdentityUser user)
         {
 
@@ -28,4 +28,4 @@ namespace LittleBitHelperExpenseTracker.Models
             return defaultCurrency;
         }
     }
-}   
+}

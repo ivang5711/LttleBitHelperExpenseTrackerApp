@@ -17,7 +17,7 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<IndexModel> _logger;
-        private static readonly string dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
+        private static readonly string dbPath = Program.Default!.DbPathData;
 
         public IndexModel(
             UserManager<IdentityUser> userManager,
@@ -109,7 +109,7 @@ namespace LittleBitHelperExpenseTracker.Areas.Identity.Pages.Account.Manage
             }
 
             var tempUserNumber = user.PhoneNumber;
-            _logger.LogDebug("TemporaryBinaryValueGenerator user phone number = {0}", tempUserNumber);
+            _logger.LogDebug("TemporaryBinaryValueGenerator user phone number = {TempUserNumber}", tempUserNumber);
             user.PhoneNumber = Input.PhoneNumber;
             using (var connection = new SQLiteConnection($"Data Source={dbPath}"))
             {

@@ -12,7 +12,7 @@ namespace LittleBitHelperExpenseTracker.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly UserManager<IdentityUser> _userManager;
-        private static readonly string? dbPath = Environment.GetEnvironmentVariable("dbPathLBH");
+        private static readonly string? dbPath = Program.Default!.DbPathData;
 
         public IndexModel(UserManager<IdentityUser> userManager, ILogger<IndexModel> logger)
         {
