@@ -3,10 +3,6 @@
     "LittleBItHelperExpenseTrackerAppTelegramBot": {
       "commandName": "Project",
       "environmentVariables": {
-        "dbPathLBH": "***REMOVED***",
-        "LBHB1": "***REMOVED***",
-        "jsonPath": "***REMOVED***",
-        "exchangeAppId": "***REMOVED***",
         "exchangeRatesProviderPath": "https://openexchangerates.org/api/latest.json?"
       }
     },

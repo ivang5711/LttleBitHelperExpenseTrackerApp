@@ -399,7 +399,16 @@ FodyWeavers.xsd
 
 # SQLite files
 *.db
+*.db-shm
+*.db-wal
+identitybase.db-wal
+identitybase.db-shm
+identitybase.*
+*.db*
 
 # Json data files
 data.json
 *data.json
+/LittleBitHelperExpenseTracker/identitybase.db-wal
+/LittleBitHelperExpenseTracker/identitybase.db-shm
+/LittleBitHelperExpenseTracker/identitybase.db-wal
