@@ -1,7 +1,6 @@
 # "LittleBitHelper". A web app for expense tracking with Telegram bot integration
 A Web app to track your expenses the easy way. Use web interface or telegram bot. The app is Written in C# and .NET.
 
-#### Video Demo:  https://youtu.be/a8twg-OPZRM
 ## **Description**:
 
 The LittleBitHelper Web App designed to make your expense tracking easy. You can add your spendings records to the app via web interface as well as via Telegram bot. Then you can get the overall amount spent, total amount by category, records filtered by date and more.
@@ -22,6 +21,12 @@ or [Telegram](https://t.me/Girsov) or [email](girsovivan@outlook.com)
 <img src="index.png" alt="index.png" height="400"> <img src="bot.png" alt="bot.png" height="400"> <img src="history.png" alt="history.png" height="400">
 
 </details>
+
+### How to run
+
+1. To run the app you need to make sure you have .net7 runtime installed on your machine.
+2. In a terminal window navigate to the project folder
+3. Enter dotnet run to run the app
 
 # **Technical details**
 
