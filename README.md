@@ -23,7 +23,16 @@ or [Telegram](https://t.me/Girsov) or [email](girsovivan@outlook.com)
 </details>
 
 ### How to run
+#### Prerequisites
+- .NET 7.0 runtime installed
+- set up environment variables* ("name" : "variable"):
+  - LBHB1 : "your Telegram bot API access token". You can get one via BotFather bot in Telegram. Refer to Telegram website to get more info about Telegram bots.
+  - exchangeRatesProviderPath : "url of your exchange rates Provider. By design the app uses OpenExchangeRates.com and parses the data according to this service data structure."
+  - exchangeAppId : "Your exchange provider access token"
 
+  ###### * refer to your shell documentation to set up the environment variables
+
+#### Run
 1. To run the app you need to make sure you have .net7 runtime installed on your machine.
 2. In a terminal window navigate to the project folder
 3. Enter dotnet run to run the app
